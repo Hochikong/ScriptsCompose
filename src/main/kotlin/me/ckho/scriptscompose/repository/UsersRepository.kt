@@ -1,9 +1,8 @@
 package me.ckho.scriptscompose.repository
 
 import me.ckho.scriptscompose.domain.UserEntity
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.jpa.repository.JpaRepository
 
-interface UsersRepository : CrudRepository<UserEntity, Long> {
-    fun findUserByUsername(name: String): UserEntity
-    fun findUserById(id: Long): UserEntity
+interface UsersRepository : JpaRepository<UserEntity, Long> {
+    fun findByUsername(name: String): UserEntity?
 }
