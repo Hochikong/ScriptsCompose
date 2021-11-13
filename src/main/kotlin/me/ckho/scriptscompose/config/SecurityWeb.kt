@@ -23,7 +23,7 @@ class WebSecurityConfig(
     override fun configure(http: HttpSecurity) {
         // configuration permissions
         http.authorizeRequests()
-            .antMatchers("/", "/home").permitAll()
+            .antMatchers("/", "/home", "/js/**", "/css/**", "/svg/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .formLogin()
