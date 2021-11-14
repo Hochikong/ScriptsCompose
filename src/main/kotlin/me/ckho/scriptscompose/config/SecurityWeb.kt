@@ -18,12 +18,10 @@ class WebSecurityConfig(
     @Autowired
     val userService: UserDetailsServiceImpl
 ) : WebSecurityConfigurerAdapter() {
-
-
     override fun configure(http: HttpSecurity) {
         // configuration permissions
         http.authorizeRequests()
-            .antMatchers("/", "/home", "/js/**", "/css/**", "/svg/**").permitAll()
+            .antMatchers("/", "/home", "/js/**", "/css/**", "/svg/**", "/utils/hash").permitAll()
             .anyRequest().authenticated()
             .and()
             .formLogin()
@@ -31,7 +29,7 @@ class WebSecurityConfig(
             .permitAll()
             .and()
             .logout()
-            .permitAll();
+            .permitAll()
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {
