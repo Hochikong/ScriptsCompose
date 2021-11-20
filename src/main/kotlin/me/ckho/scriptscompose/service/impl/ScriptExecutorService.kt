@@ -1,15 +1,14 @@
 package me.ckho.scriptscompose.service.impl
 
 import me.ckho.scriptscompose.domain.dataclasses.ShellReturn
-import me.ckho.scriptscompose.service.ScriptExecutorService
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.concurrent.thread
 
 @Service
-class ScriptExecutorServiceImpl : ScriptExecutorService {
-    override fun runShellCommand(commands: List<String>, working_dir: String): ShellReturn {
+class ScriptExecutorService{
+    fun runShellCommand(commands: List<String>, working_dir: String): ShellReturn {
         val rt = Runtime.getRuntime()
         val proc: Process = rt.exec(commands.toTypedArray())
 

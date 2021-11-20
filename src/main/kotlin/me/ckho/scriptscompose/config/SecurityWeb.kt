@@ -1,6 +1,6 @@
 package me.ckho.scriptscompose.config
 
-import me.ckho.scriptscompose.service.impl.UserDetailsServiceImpl
+import me.ckho.scriptscompose.service.impl.UserDetailsService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @EnableWebSecurity
 class WebSecurityConfig(
     @Autowired
-    val userService: UserDetailsServiceImpl
+    val userService: UserDetailsService
 ) : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         // configuration permissions

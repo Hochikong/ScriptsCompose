@@ -1,14 +1,32 @@
 script_groups:
   - group_name: SN1
-    commands_seq:
-      - python38 sycm_compose.py -c xx
-      - python38 sycm_compose.py -c yy
+    job_type: one
+    commands:
+      - command_arg_seq:
+          - python38
+          - sycm_compose.py
+          - -c xx
+          - -n nn
+      - command_arg_seq:
+          - python38
+          - sycm_compose.py
+          - -c yy
+          - -n nn
     working_dir: /home/mgmt/Daily
-    cron_set: xxx
+    start_at: xxx
 
   - group_name: SN2
-    commands_seq:
-      - python38 jdsz_compose.py -c xxx
-      - python38 jdsz_compose.py -c yyy
+    job_type: cron
+    commands:
+      - command_arg_seq:
+          - python38
+          - jdsz_compose.py
+          - -c xxx
+          - -n nn
+      - command_arg_seq:
+          - python38
+          - jdsz_compose.py
+          - -c yyy
+          - -n nn
     working_dir: /home/mgmt/Daily
-    cron_set: xxx
+    start_at: xxx

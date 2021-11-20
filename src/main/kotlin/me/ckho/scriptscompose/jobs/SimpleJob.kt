@@ -1,6 +1,7 @@
 package me.ckho.scriptscompose.jobs
 
-import me.ckho.scriptscompose.service.ScriptExecutorService
+import me.ckho.scriptscompose.domain.dataclasses.ScriptArgSequence
+import me.ckho.scriptscompose.service.impl.ScriptExecutorService
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.slf4j.LoggerFactory
@@ -13,9 +14,14 @@ class SimpleJob(
 ) : Job{
     var logger = LoggerFactory.getLogger(SimpleJob::class.java)
 
-
     override fun execute(context: JobExecutionContext) {
-        val r = executor.runShellCommand(listOf("python", "sycm_compose.py", "-c 1.txt"), "./")
-        logger.info(r.toString())
+        val jdm = context.jobDetail.jobDataMap
+        val script: List<ScriptArgSequence> = jdm["scripts"] as List<ScriptArgSequence>
+        val wd = jdm["working_dir"] as String
+
+        for (s in script){
+            val r = executor.runShellCommand(s.command_arg_seq, wd)
+            logger.info(r.toString())
+        }
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class UserDetailsServiceImpl(
+class UserDetailsService(
     @Autowired
     private val userRepository: UsersRepository
 ) : UserDetailsService {

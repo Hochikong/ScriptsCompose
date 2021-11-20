@@ -1,5 +1,7 @@
 package me.ckho.scriptscompose.service.impl
 
+import me.ckho.scriptscompose.domain.dataclasses.ScriptArgSequence
+import me.ckho.scriptscompose.domain.dataclasses.ScriptGroup
 import me.ckho.scriptscompose.jobs.SimpleJob
 import org.quartz.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,30 +11,34 @@ import java.util.*
 
 @Service
 class QuartzService(@Autowired val scheduler: Scheduler) {
-    private val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    private val oneTimeDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-    fun addJob(startAt: String){
-        val jt = buildJobDetail()
-        scheduler.scheduleJob(jt, buildJobTrigger(jt, startAt))
+    fun addOneTimeJob(scriptGroup: ScriptGroup){
+        val otj = buildOneTimeJobDetail(scriptGroup.group_name, scriptGroup.commands, scriptGroup.working_dir)
+        scheduler.scheduleJob(otj, buildOneTimeJobTrigger(otj, scriptGroup.start_at))
     }
 
-    fun buildJobDetail(): JobDetail {
+    private fun buildOneTimeJobDetail(groupName: String, scripts: List<ScriptArgSequence>, working_dir: String): JobDetail {
         val jobDataMap = JobDataMap()
-        jobDataMap["script"] = listOf("python", "sycm_compose.py", "-c 1.txt").toTypedArray()
+        jobDataMap["scripts"] = scripts
+        jobDataMap["working_dir"] = working_dir
+        jobDataMap["group"] = groupName
         return JobBuilder.newJob(SimpleJob::class.java)
-            .withIdentity(UUID.randomUUID().toString(), "SN1")
-            .withDescription("Execute python script")
+            .withIdentity(UUID.randomUUID().toString(), groupName)
+            .withDescription("A simple one time job")
             .usingJobData(jobDataMap)
             .build()
     }
 
 
-    fun buildJobTrigger(jobDetail: JobDetail, startAt: String): Trigger {
+    private fun buildOneTimeJobTrigger(jobDetail: JobDetail, startAt: String): Trigger {
+        val group: String = jobDetail.jobDataMap["group"] as String
+
         return TriggerBuilder.newTrigger()
             .forJob(jobDetail)
-            .withIdentity(jobDetail.key.name, "SN1_triggers")
-            .withDescription("SN1 Execute Trigger")
-            .startAt(sdf.parse(startAt))
+            .withIdentity(jobDetail.key.name, "${group}_triggers")
+            .withDescription("One time job $group Execute Trigger")
+            .startAt(oneTimeDateFormat.parse(startAt))
             .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
             .build()
     }

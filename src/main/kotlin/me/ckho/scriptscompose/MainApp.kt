@@ -1,6 +1,9 @@
 package me.ckho.scriptscompose
 
+import me.ckho.scriptscompose.domain.dataclasses.ScriptArgSequence
+import me.ckho.scriptscompose.domain.dataclasses.ScriptGroup
 import me.ckho.scriptscompose.service.impl.QuartzService
+import me.ckho.scriptscompose.service.impl.ScriptsConfigLoaderService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
@@ -9,12 +12,22 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 
 @SpringBootApplication
 class MainApp(
-    @Autowired val qz: QuartzService
-) : CommandLineRunner{
+    @Autowired val qz: QuartzService,
+    @Autowired val cfg: ScriptsConfigLoaderService
+) : CommandLineRunner {
     override fun run(vararg args: String?) {
         // init
         println("Add quartz job ...")
-        qz.addJob("2021-11-20 21:02:00")
+        qz.addOneTimeJob(
+            ScriptGroup(
+                "SN1",
+                "one",
+                listOf(ScriptArgSequence(command_arg_seq = listOf("python", "sycm_compose.py", "-c 1.txt"))),
+                "./",
+                "2021-11-21 04:06:00"
+            )
+        )
+//        cfg.loadConfigs()
     }
 }
 
