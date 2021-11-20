@@ -1,0 +1,14 @@
+script_groups:
+  - group_name: SN1
+    commands_seq:
+      - python38 sycm_compose.py -c xx
+      - python38 sycm_compose.py -c yy
+    working_dir: /home/mgmt/Daily
+    cron_set: xxx
+
+  - group_name: SN2
+    commands_seq:
+      - python38 jdsz_compose.py -c xxx
+      - python38 jdsz_compose.py -c yyy
+    working_dir: /home/mgmt/Daily
+    cron_set: xxx
