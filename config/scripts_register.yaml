@@ -3,30 +3,28 @@ script_groups:
     job_type: one
     commands:
       - command_arg_seq:
-          - python38
+          - python
           - sycm_compose.py
-          - -c xx
-          - -n nn
-      - command_arg_seq:
-          - python38
-          - sycm_compose.py
-          - -c yy
-          - -n nn
-    working_dir: /home/mgmt/Daily
-    start_at: xxx
+          - -c 1.txt
+#      - command_arg_seq:
+#          - python38
+#          - sycm_compose.py
+#          - -c yy
+#          - -n nn
+    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
+    start_at: '2021-11-21 15:45:00'
 
   - group_name: SN2
     job_type: cron
     commands:
       - command_arg_seq:
-          - python38
-          - jdsz_compose.py
-          - -c xxx
-          - -n nn
-      - command_arg_seq:
-          - python38
-          - jdsz_compose.py
-          - -c yyy
-          - -n nn
-    working_dir: /home/mgmt/Daily
-    start_at: xxx
+          - python
+          - sycm_compose.py
+          - -h
+#      - command_arg_seq:
+#          - python38
+#          - jdsz_compose.py
+#          - -c yyy
+#          - -n nn
+    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose\.gradle
+    start_at: '0 * * ? * * *'

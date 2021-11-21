@@ -18,6 +18,11 @@ class QuartzService(@Autowired val scheduler: Scheduler) {
         scheduler.scheduleJob(otj, buildOneTimeJobTrigger(otj, scriptGroup.start_at))
     }
 
+    fun addCronJob(scriptGroup: ScriptGroup) {
+        val otj = buildCronJobDetail(scriptGroup.group_name, scriptGroup.commands, scriptGroup.working_dir)
+        scheduler.scheduleJob(otj, buildCronJobTrigger(otj, scriptGroup.start_at))
+    }
+
     private fun buildOneTimeJobDetail(groupName: String, scripts: List<ScriptArgSequence>, working_dir: String): JobDetail {
         val jobDataMap = JobDataMap()
         jobDataMap["scripts"] = scripts
@@ -26,6 +31,18 @@ class QuartzService(@Autowired val scheduler: Scheduler) {
         return JobBuilder.newJob(SimpleJob::class.java)
             .withIdentity(UUID.randomUUID().toString(), groupName)
             .withDescription("A simple one time job")
+            .usingJobData(jobDataMap)
+            .build()
+    }
+
+    private fun buildCronJobDetail(groupName: String, scripts: List<ScriptArgSequence>, working_dir: String): JobDetail {
+        val jobDataMap = JobDataMap()
+        jobDataMap["scripts"] = scripts
+        jobDataMap["working_dir"] = working_dir
+        jobDataMap["group"] = groupName
+        return JobBuilder.newJob(SimpleJob::class.java)
+            .withIdentity(UUID.randomUUID().toString(), groupName)
+            .withDescription("A cron job")
             .usingJobData(jobDataMap)
             .build()
     }
@@ -40,6 +57,17 @@ class QuartzService(@Autowired val scheduler: Scheduler) {
             .withDescription("One time job $group Execute Trigger")
             .startAt(oneTimeDateFormat.parse(startAt))
             .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+            .build()
+    }
+
+    private fun buildCronJobTrigger(jobDetail: JobDetail, startAt: String): Trigger {
+        val group: String = jobDetail.jobDataMap["group"] as String
+
+        return TriggerBuilder.newTrigger()
+            .forJob(jobDetail)
+            .withIdentity(jobDetail.key.name, "${group}_triggers")
+            .withDescription("Cron job $group Execute Trigger")
+            .withSchedule(CronScheduleBuilder.cronSchedule(startAt).withMisfireHandlingInstructionFireAndProceed())
             .build()
     }
 }

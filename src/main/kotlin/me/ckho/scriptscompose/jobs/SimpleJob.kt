@@ -4,6 +4,7 @@ import me.ckho.scriptscompose.domain.dataclasses.ScriptArgSequence
 import me.ckho.scriptscompose.service.impl.ScriptExecutorService
 import org.quartz.Job
 import org.quartz.JobExecutionContext
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component
 class SimpleJob(
     @Autowired val executor: ScriptExecutorService
 ) : Job{
-    var logger = LoggerFactory.getLogger(SimpleJob::class.java)
+    private var logger: Logger = LoggerFactory.getLogger(SimpleJob::class.java)
 
     override fun execute(context: JobExecutionContext) {
         val jdm = context.jobDetail.jobDataMap

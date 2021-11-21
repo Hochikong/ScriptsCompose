@@ -13,17 +13,15 @@ class ScriptsConfigLoaderService {
     /**
      * Load scripts_register.yaml from default location.
      * */
-    fun loadConfigs(){
-        val scc = mapper.readValue(File("./config/scripts_register.yaml"), ScriptComposeConfig::class.java)
-        println(scc)
+    fun loadConfigs(): ScriptComposeConfig {
+        return mapper.readValue(File("./config/scripts_register.yaml"), ScriptComposeConfig::class.java)
     }
 
     /**
      * Load your own script register configuration file from specific path.
      * @param path: Your own config file path, yaml format.
      * */
-    fun loadConfigsFrom(path: String){
-        val scc = mapper.readValue(File(path), ScriptComposeConfig::class.java)
-        println(scc)
+    fun loadConfigsFrom(path: String): ScriptComposeConfig {
+        return mapper.readValue(File(path), ScriptComposeConfig::class.java)
     }
 }
