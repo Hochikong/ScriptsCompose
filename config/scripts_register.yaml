@@ -4,6 +4,7 @@ script_groups:
     commands:
       - command_arg_seq:
           - python
+          - -u
           - sycm_compose.py
           - -c 1.txt
 #      - command_arg_seq:
@@ -19,12 +20,13 @@ script_groups:
     commands:
       - command_arg_seq:
           - python
+          - -u
           - sycm_compose.py
-          - -h
+          - -c nmsl.txt
 #      - command_arg_seq:
 #          - python38
 #          - jdsz_compose.py
 #          - -c yyy
 #          - -n nn
-    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose\.gradle
+    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose\
     start_at: '0 * * ? * * *'
