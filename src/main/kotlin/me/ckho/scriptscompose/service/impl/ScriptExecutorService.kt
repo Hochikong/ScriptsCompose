@@ -2,6 +2,7 @@ package me.ckho.scriptscompose.service.impl
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.io.File
@@ -11,6 +12,7 @@ import kotlin.concurrent.thread
 
 
 @Service
+@Scope(value = "prototype")
 class ScriptExecutorService {
     var logger: Logger = LoggerFactory.getLogger(ScriptExecutorService::class.java)
     var commands: MutableList<Array<String>> = mutableListOf()
