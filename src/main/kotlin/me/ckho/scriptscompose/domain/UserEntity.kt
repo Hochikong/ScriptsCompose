@@ -10,12 +10,12 @@ import javax.persistence.*
 class UserEntity(
     @Column(unique = true)
     private var username: String,
-    private var password_hash: String,
+    private var passwordHash: String,
     private var role: String,
     @Id @GeneratedValue private var id: Long? = null
 ) : UserDetails {
     override fun toString(): String {
-        return "UserEntity(username='$username', password_hash='$password_hash', role='$role', id=$id)"
+        return "UserEntity(username='$username', passwordHash='$passwordHash', role='$role', id=$id)"
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -23,7 +23,7 @@ class UserEntity(
     }
 
     override fun getPassword(): String {
-        return password_hash
+        return passwordHash
     }
 
     override fun getUsername(): String {

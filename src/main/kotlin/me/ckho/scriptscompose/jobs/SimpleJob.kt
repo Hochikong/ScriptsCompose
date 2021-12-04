@@ -19,7 +19,9 @@ class SimpleJob(
         executor.start()
         logger.info(executor.uid)
         val jdm = context.jobDetail.jobDataMap
-        val script: List<ScriptArgSequence> = jdm["scripts"] as List<ScriptArgSequence>
+        executor.updateExecuteInterval((jdm["interval"] as Int).toLong())
+        executor.loadScriptGroupAndRegisterScriptLogs(jdm["configJSON"] as String)
+        val script: List<ScriptArgSequence> = jdm["commands"] as List<ScriptArgSequence>
         val wd = jdm["working_dir"] as String
 
         for (s in script){

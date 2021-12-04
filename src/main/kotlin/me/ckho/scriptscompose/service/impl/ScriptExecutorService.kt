@@ -1,28 +1,56 @@
 package me.ckho.scriptscompose.service.impl
 
+import me.ckho.scriptscompose.domain.ScriptLogsEntity
+import me.ckho.scriptscompose.domain.dataclasses.ScriptGroup
+import me.ckho.scriptscompose.repository.ScriptLogsRepository
+import me.ckho.scriptscompose.utils.JSONMapper
+import org.hibernate.engine.jdbc.ClobProxy
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
 
 
 @Service
 @Scope(value = "prototype")
-class ScriptExecutorService {
-    var logger: Logger = LoggerFactory.getLogger(ScriptExecutorService::class.java)
-    var commands: MutableList<Array<String>> = mutableListOf()
-    var workingDirs: MutableList<String> = mutableListOf()
-    var stopThreads = false
-    var taskRunning = false
-    var stdoutAccumulate: String = ""
-    var stderrAccumulate: String = ""
-    lateinit var proc: Process
+class ScriptExecutorService(
+    @Autowired
+    private val SLR: ScriptLogsRepository
+) {
+    private var logger: Logger = LoggerFactory.getLogger(ScriptExecutorService::class.java)
+    private val stdDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    private var commands: MutableList<Array<String>> = mutableListOf()
+    private var workingDirs: MutableList<String> = mutableListOf()
+    private var stopThreadsFlag = false
+    private var taskRunningFlag = false
+    private var stdoutAccumulate: String = "** STDOUT **\n"
+    private var stderrAccumulate: String = "** STDERR **\n"
+    private lateinit var proc: Process
+    private var executeInterval: Long = 500L
+    private lateinit var scg: ScriptGroup
     var uid = "Script Executor Service -> ${UUID.randomUUID()}"
+
+    fun getOutput(): Array<String> {
+        return arrayOf(stdoutAccumulate, stderrAccumulate)
+    }
+
+    fun loadScriptGroupAndRegisterScriptLogs(sg: String) {
+        scg = JSONMapper.readValue(sg, ScriptGroup::class.java)
+    }
+
+    fun updateExecuteInterval(seconds: Long) {
+        executeInterval = seconds
+    }
 
     fun commitShellCommand(command: List<String>, workingDir: String) {
         commands.add(command.toTypedArray())
@@ -30,30 +58,61 @@ class ScriptExecutorService {
     }
 
     fun runShellCommand(command: Array<String>, workingDir: String) {
-        println("Run ")
+        // reset
+        stdoutAccumulate = "** STDOUT **\n"
+        stderrAccumulate = "** STDERR **\n"
+
+        logger.info("### Run a command ###")
         val rt = Runtime.getRuntime()
-        taskRunning = true
+        taskRunningFlag = true
+        val start = getCurrentDatetimeAsDate()
         proc = rt.exec(command, null, File(workingDir))
         proc.waitFor()
-        taskRunning = false
+        val end = getCurrentDatetimeAsDate()
+        taskRunningFlag = false
+        logger.info("### Run end ###")
+
+        SLR.save(
+            ScriptLogsEntity(
+                startTime = start,
+                endTime = end,
+                jobGroup = scg.group_name,
+                jobType = scg.job_type,
+                jobInterval = scg.interval,
+                jobCommand = command.reduce { acc, s -> acc + s },
+                jobTrigger = scg.start_at,
+                workingDir = scg.working_dir,
+                jobLogs = ClobProxy.generateProxy(stdoutAccumulate+stderrAccumulate)
+            )
+        )
+    }
+
+    private fun getCurrentDatetime(): String {
+        val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val now = LocalDateTime.now()
+        return dtf.format(now)
+    }
+
+    private fun getCurrentDatetimeAsDate(): Date {
+        return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())
     }
 
     fun start() {
         thread {
-            while (!stopThreads) {
-                if (taskRunning) {
+            while (!stopThreadsFlag) {
+                if (taskRunningFlag) {
                     try {
                         val stdInput = BufferedReader(InputStreamReader(proc.inputStream))
                         var si: String?
                         while (stdInput.readLine().also {
                                 si = it
                                 if (it != null) {
-                                    stdoutAccumulate += "$it\n"
+                                    stdoutAccumulate += "${getCurrentDatetime()}  $it\n"
                                 }
                             } != null) {
                             logger.info(si)
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                     }
                 }
                 Thread.sleep(500)
@@ -61,20 +120,20 @@ class ScriptExecutorService {
         }
 
         thread {
-            while (!stopThreads) {
-                if (taskRunning) {
+            while (!stopThreadsFlag) {
+                if (taskRunningFlag) {
                     try {
                         val stdError = BufferedReader(InputStreamReader(proc.errorStream))
                         var se: String?
                         while (stdError.readLine().also {
                                 se = it
                                 if (it != null) {
-                                    stderrAccumulate += "$it\n"
+                                    stderrAccumulate += "${getCurrentDatetime()}  $it\n"
                                 }
                             } != null) {
                             logger.info(se)
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                     }
                 }
                 Thread.sleep(500)
@@ -82,7 +141,7 @@ class ScriptExecutorService {
         }
 
         thread {
-            while (!stopThreads) {
+            while (!stopThreadsFlag) {
                 if (commands.size > 0) {
                     val c = commands[0]
                     val wd = workingDirs[0]
@@ -90,14 +149,14 @@ class ScriptExecutorService {
                     commands.removeAt(0)
                     workingDirs.removeAt(0)
                 }
-                Thread.sleep(500)
+                Thread.sleep(executeInterval)
             }
         }
     }
 
     fun stop() {
         proc.destroy()
-        stopThreads = true
+        stopThreadsFlag = true
     }
 
 }

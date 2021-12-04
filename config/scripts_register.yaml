@@ -1,22 +1,26 @@
 script_groups:
   - group_name: SN1
     job_type: one
+    # seconds
+    interval: 10
     commands:
       - command_arg_seq:
           - python
           - -u
           - sycm_compose.py
           - -c 1.txt
-#      - command_arg_seq:
-#          - python38
-#          - sycm_compose.py
-#          - -c yy
-#          - -n nn
+      - command_arg_seq:
+          - python
+          - -u
+          - sycm_compose.py
+          - -c sb.txt
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
     start_at: '2021-11-21 15:45:00'
 
   - group_name: SN2
     job_type: cron
+    # seconds
+    interval: 0
     commands:
       - command_arg_seq:
           - python
