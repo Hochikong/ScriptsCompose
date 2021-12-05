@@ -11,4 +11,14 @@ class MainController {
     fun home(): String {
         return "index"
     }
+
+    @GetMapping("/cronDash")
+    fun cron(): String{
+        return "cronDash"
+    }
+
+    @GetMapping("/oneDash")
+    fun one(): String{
+        return "oneDash"
+    }
 }

@@ -4,7 +4,6 @@ import me.ckho.scriptscompose.service.impl.UserDetailsService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -24,8 +23,7 @@ class WebSecurityConfig(
         // only disable csrf than any post requests can be received by rest controller
         http.csrf().disable()
             .authorizeRequests()
-            .antMatchers("/js/**", "/css/**", "/svg/**", "/utils/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/utils/insert").permitAll()
+            .antMatchers("/js/**", "/css/**", "/svg/**", "/utils/**", "/groups/allGroups").permitAll()
             .anyRequest().authenticated()
             .and()
             .formLogin()

@@ -28,7 +28,7 @@
         </encoder>
     </appender>
 
-    <logger name="me.ckho.scriptscompose.controller.HashController" level="info" additivity="false">
+    <logger name="me.ckho.scriptscompose.controller.APIController" level="info" additivity="false">
         <appender-ref ref="UtilsAPI"/>
         <appender-ref ref="STDOUT"/>
     </logger>

@@ -8,13 +8,24 @@ import java.io.File
 
 @Service
 class ScriptsConfigLoaderService {
+    private lateinit var scg: ScriptComposeConfig
+
     private val mapper = ObjectMapper(YAMLFactory()).apply { findAndRegisterModules() }
 
     /**
      * Load scripts_register.yaml from default location.
      * */
     fun loadConfigs(): ScriptComposeConfig {
-        return mapper.readValue(File("./config/scripts_register.yaml"), ScriptComposeConfig::class.java)
+        scg = mapper.readValue(File("./config/scripts_register.yaml"), ScriptComposeConfig::class.java)
+        return scg
+    }
+
+    fun getSCG(): ScriptComposeConfig?{
+        return scg
+    }
+
+    fun getAllGroupsFromSCG(): List<String>{
+        return scg.script_groups.map { it.group_name }.toList()
     }
 
     /**
