@@ -23,7 +23,16 @@ class WebSecurityConfig(
         // only disable csrf than any post requests can be received by rest controller
         http.csrf().disable()
             .authorizeRequests()
-            .antMatchers("/js/**", "/css/**", "/svg/**", "/utils/**", "/groups/allGroups").permitAll()
+            .antMatchers(
+                "/js/**",
+                "/css/**",
+                "/svg/**",
+                "/utils/**",
+                "/groups/allGroups/**",
+                "/groups/allGroups/byType",
+                "/tasks/allTasks",
+                "/tasks/allTasks/byType"
+            ).permitAll()
             .anyRequest().authenticated()
             .and()
             .formLogin()
@@ -44,7 +53,7 @@ class WebSecurityConfig(
     }
 
     @Bean
-    fun PasswordEncoder(): PasswordEncoder{
+    fun PasswordEncoder(): PasswordEncoder {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder()
     }
 

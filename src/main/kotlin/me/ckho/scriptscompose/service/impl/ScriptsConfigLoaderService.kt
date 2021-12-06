@@ -3,6 +3,8 @@ package me.ckho.scriptscompose.service.impl
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import me.ckho.scriptscompose.domain.dataclasses.ScriptComposeConfig
+import me.ckho.scriptscompose.domain.dataclasses.ScriptGroupExpand
+import me.ckho.scriptscompose.utils.ResponseFactory
 import org.springframework.stereotype.Service
 import java.io.File
 
@@ -20,12 +22,36 @@ class ScriptsConfigLoaderService {
         return scg
     }
 
-    fun getSCG(): ScriptComposeConfig?{
+    fun getSCG(): ScriptComposeConfig? {
         return scg
     }
 
-    fun getAllGroupsFromSCG(): List<String>{
+    fun getAllGroupsFromSCG(): List<String> {
         return scg.script_groups.map { it.group_name }.toList()
+    }
+
+    fun getGroupsByType(type: String): List<String> {
+        return scg.script_groups.filter { it.job_type == type }.map { it.group_name }.toList()
+    }
+
+    fun getAllTasksFromSCG(): List<ScriptGroupExpand> {
+        val result = mutableListOf<ScriptGroupExpand>()
+        for (sg in scg.script_groups) {
+            val tmp = ResponseFactory.buildScriptGroupExpandResponse(sg)
+            tmp.map { result.add(it) }
+        }
+        return result
+    }
+
+    fun getAllTasksByType(type: String): List<ScriptGroupExpand> {
+        val result = mutableListOf<ScriptGroupExpand>()
+        for (sg in scg.script_groups) {
+            if (sg.job_type == type){
+                val tmp = ResponseFactory.buildScriptGroupExpandResponse(sg)
+                tmp.map { result.add(it) }
+            }
+        }
+        return result
     }
 
     /**

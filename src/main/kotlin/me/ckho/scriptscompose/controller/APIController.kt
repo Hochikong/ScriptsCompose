@@ -39,10 +39,46 @@ class APIController(
         )
     }
 
-//    @GetMapping("/tasks/allTasks", produces = ["application/json"])
-//    fun getTasks(): Map<String, Any> {
-//
-//    }
+    @GetMapping("/groups/allGroups/byType", produces = ["application/json"])
+    fun getAllGroupsByType(type: String): Map<String, Any> {
+        return if (type != "cron" && type != "one"){
+            mapOf(
+                "groups" to "none",
+                "message" to "Unsupported type."
+            )
+        }else{
+            val r = scls.getGroupsByType(type)
+            mapOf(
+                "groups" to r,
+                "message" to "Query done."
+            )
+        }
+    }
+
+    @GetMapping("/tasks/allTasks", produces = ["application/json"])
+    fun getTasks(): Map<String, Any> {
+        val r = scls.getAllTasksFromSCG()
+        return mapOf(
+            "tasks" to r,
+            "message" to "Query done."
+        )
+    }
+
+    @GetMapping("/tasks/allTasks/byType", produces = ["application/json"])
+    fun getTasksByType(type: String): Map<String, Any> {
+        return if (type != "cron" && type != "one"){
+            mapOf(
+                "tasks" to "none",
+                "message" to "Unsupported type."
+            )
+        }else{
+            val r = scls.getAllTasksByType(type)
+            return mapOf(
+                "tasks" to r,
+                "message" to "Query done."
+            )
+        }
+    }
 
 //    @PostMapping("/utils/insert", produces = ["application/json"])
 //    fun process(@RequestBody body: Map<String, Any>) {
