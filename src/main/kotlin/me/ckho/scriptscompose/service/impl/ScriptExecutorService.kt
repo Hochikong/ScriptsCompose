@@ -4,6 +4,7 @@ import me.ckho.scriptscompose.domain.ScriptLogsEntity
 import me.ckho.scriptscompose.domain.dataclasses.ScriptGroup
 import me.ckho.scriptscompose.repository.ScriptLogsRepository
 import me.ckho.scriptscompose.utils.JSONMapper
+import me.ckho.scriptscompose.utils.generateUIDForTask
 import org.hibernate.engine.jdbc.ClobProxy
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -72,6 +73,32 @@ class ScriptExecutorService(
         taskRunningFlag = false
         logger.info("### Run end ###")
 
+        val logHash = when (scg.job_type) {
+            "one" -> {
+                generateUIDForTask(
+                    """
+                    ${scg.group_name} ${scg.job_type} ${scg.interval} 
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} $start $end
+                """.trimIndent()
+                )
+            }
+            "cron" -> {
+                generateUIDForTask(
+                    """
+                    ${scg.group_name} ${scg.job_type} ${scg.interval} 
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} ${scg.start_at}
+                """.trimIndent()
+                )
+            }
+            else -> {
+                "INVALID JOB_TYPE"
+            }
+        }
+
+        val taskHash = generateUIDForTask("""
+            ${scg.group_name} ${scg.job_type} ${scg.interval} ${command.reduce { acc, s -> acc + s }} ${scg.working_dir}
+        """.trimIndent())
+
         SLR.save(
             ScriptLogsEntity(
                 startTime = start,
@@ -82,7 +109,9 @@ class ScriptExecutorService(
                 jobCommand = command.reduce { acc, s -> acc + s },
                 jobTrigger = scg.start_at,
                 workingDir = scg.working_dir,
-                jobLogs = ClobProxy.generateProxy(stdoutAccumulate+stderrAccumulate)
+                logHash = logHash,
+                taskHash = taskHash,
+                jobLogs = ClobProxy.generateProxy(stdoutAccumulate + stderrAccumulate)
             )
         )
     }

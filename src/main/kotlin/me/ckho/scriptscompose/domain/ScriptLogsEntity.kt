@@ -18,6 +18,8 @@ class ScriptLogsEntity(
     // it means a group when to start
     var jobTrigger: String,
     var workingDir: String,
+    var logHash: String,
+    var taskHash: String,
     @Lob
     var jobLogs: Clob,
     @Id
@@ -25,6 +27,6 @@ class ScriptLogsEntity(
     var id: Long? = null
 ) {
     override fun toString(): String {
-        return "ScriptLogsEntity(startTime=$startTime, endTime=$endTime, jobGroup='$jobGroup', jobType='$jobType', jobInterval=$jobInterval, jobCommand='$jobCommand', jobTrigger='$jobTrigger', workingDir='$workingDir', jobLogs=$jobLogs, id=$id)"
+        return "ScriptLogsEntity(startTime=$startTime, endTime=$endTime, jobGroup='$jobGroup', jobType='$jobType', jobInterval=$jobInterval, jobCommand='$jobCommand', jobTrigger='$jobTrigger', workingDir='$workingDir', uid='$logHash', jobLogs=$jobLogs, id=$id)"
     }
 }

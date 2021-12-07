@@ -55,6 +55,9 @@ class APIController(
         }
     }
 
+    /**
+     * Return all registered tasks
+     * */
     @GetMapping("/tasks/allTasks", produces = ["application/json"])
     fun getTasks(): Map<String, Any> {
         val r = scls.getAllTasksFromSCG()
@@ -64,6 +67,9 @@ class APIController(
         )
     }
 
+    /**
+     * Return all registered tasks by type
+     * */
     @GetMapping("/tasks/allTasks/byType", produces = ["application/json"])
     fun getTasksByType(type: String): Map<String, Any> {
         return if (type != "cron" && type != "one"){
