@@ -13,4 +13,5 @@ interface ScriptLogsRepository : JpaRepository<ScriptLogsEntity, Long> {
 
     fun findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(start: Date, end: Date): List<ScriptLogsEntity?>
 
+    fun findByTaskStatus(status: String): List<ScriptLogsEntity?>
 }

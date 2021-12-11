@@ -21,11 +21,12 @@ class SimpleJob(
         val jdm = context.jobDetail.jobDataMap
         executor.updateExecuteInterval((jdm["interval"] as Int).toLong())
         executor.loadScriptGroupAndRegisterScriptLogs(jdm["configJSON"] as String)
+        val jobType = jdm["job_type"]
         val script: List<ScriptArgSequence> = jdm["commands"] as List<ScriptArgSequence>
         val wd = jdm["working_dir"] as String
 
         for (s in script){
-            executor.commitShellCommand(s.command_arg_seq, wd)
+            executor.commitShellCommand(s.command_arg_seq, wd, jobType as String)
         }
     }
 

@@ -35,22 +35,25 @@ class APIController(
         val r = scls.getAllGroupsFromSCG()
         return mapOf(
             "groups" to r,
-            "message" to "Query done."
+            "message" to "Query done.",
+            "code" to 200
         )
     }
 
     @GetMapping("/groups/allGroups/byType", produces = ["application/json"])
     fun getAllGroupsByType(type: String): Map<String, Any> {
-        return if (type != "cron" && type != "one"){
+        return if (type != "cron" && type != "one") {
             mapOf(
                 "groups" to "none",
-                "message" to "Unsupported type."
+                "message" to "Unsupported type.",
+                "code" to 400
             )
-        }else{
+        } else {
             val r = scls.getGroupsByType(type)
             mapOf(
                 "groups" to r,
-                "message" to "Query done."
+                "message" to "Query done.",
+                "code" to 200
             )
         }
     }
@@ -63,7 +66,8 @@ class APIController(
         val r = scls.getAllTasksFromSCG()
         return mapOf(
             "tasks" to r,
-            "message" to "Query done."
+            "message" to "Query done.",
+            "code" to 200
         )
     }
 
@@ -72,49 +76,28 @@ class APIController(
      * */
     @GetMapping("/tasks/allTasks/byType", produces = ["application/json"])
     fun getTasksByType(type: String): Map<String, Any> {
-        return if (type != "cron" && type != "one"){
+        return if (type != "cron" && type != "one") {
             mapOf(
                 "tasks" to "none",
-                "message" to "Unsupported type."
+                "message" to "Unsupported type.",
+                "code" to 400
             )
-        }else{
+        } else {
             val r = scls.getAllTasksByType(type)
             return mapOf(
                 "tasks" to r,
-                "message" to "Query done."
+                "message" to "Query done.",
+                "code" to 200
             )
         }
     }
 
-//    @PostMapping("/utils/insert", produces = ["application/json"])
-//    fun process(@RequestBody body: Map<String, Any>) {
-//        sle.save(
-//            ScriptLogsEntity(
-//                oneTimeDateFormat.parse(body["start_time"] as String),
-//                oneTimeDateFormat.parse(body["end_time"] as String),
-//                "group2",
-//                "type2",
-//                10,
-//                "python",
-//                "trigger1",
-//                "s",
-//                ClobProxy.generateProxy("shdsdsd7677777777777777777777777777jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
-//            )
-//        )
-//    }
-//
-//    @GetMapping("/utils/query", produces = ["application/json"])
-//    fun query(@RequestBody body: Map<String, Any>): String {
-//        val r = sle.findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(
-//            oneTimeDateFormat.parse(body["start_time"] as String),
-//            oneTimeDateFormat.parse(body["end_time"] as String)
-//        )
-//
-//        if (r.isNotEmpty()){
-//            val tmp = mapOf("data" to r.map { it.toString() })
-//            return tmp.toString()
-//        }
-//
-//        return ""
-//    }
+    @GetMapping("/tasks/allRunning", produces = ["application/json"])
+    fun getAllRunningTasks(): Map<String, Any> {
+        return mapOf(
+            "tasks" to scls.getAllRunningTasks(),
+            "message" to "Query done.",
+            "code" to 200
+        )
+    }
 }

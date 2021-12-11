@@ -1,5 +1,6 @@
 script_groups:
-  - group_name: SN1
+  - group_name: SN1_1
+    cluster: SN1
     job_type: one
     # seconds
     interval: 10
@@ -17,7 +18,8 @@ script_groups:
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
     start_at: '2021-11-21 15:45:00'
 
-  - group_name: SN2
+  - group_name: SN1_2
+    cluster: SN1
     job_type: cron
     # seconds
     interval: 0

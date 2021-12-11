@@ -11,6 +11,7 @@ class ScriptLogsEntity(
     var startTime: Date,
     @Temporal(TemporalType.TIMESTAMP)
     var endTime: Date,
+    val cluster: String,
     var jobGroup: String,
     var jobType: String,
     var jobInterval: Int,
@@ -20,6 +21,7 @@ class ScriptLogsEntity(
     var workingDir: String,
     var logHash: String,
     var taskHash: String,
+    var taskStatus: String,
     @Lob
     var jobLogs: Clob,
     @Id
@@ -27,6 +29,6 @@ class ScriptLogsEntity(
     var id: Long? = null
 ) {
     override fun toString(): String {
-        return "ScriptLogsEntity(startTime=$startTime, endTime=$endTime, jobGroup='$jobGroup', jobType='$jobType', jobInterval=$jobInterval, jobCommand='$jobCommand', jobTrigger='$jobTrigger', workingDir='$workingDir', uid='$logHash', jobLogs=$jobLogs, id=$id)"
+        return "ScriptLogsEntity(startTime=$startTime, endTime=$endTime, cluster='$cluster', jobGroup='$jobGroup', jobType='$jobType', jobInterval=$jobInterval, jobCommand='$jobCommand', jobTrigger='$jobTrigger', workingDir='$workingDir', logHash='$logHash', taskHash='$taskHash', taskStatus='$taskStatus', jobLogs=$jobLogs, id=$id)"
     }
 }

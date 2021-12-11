@@ -19,6 +19,7 @@ class WebSecurityConfig(
     val userService: UserDetailsService
 ) : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
+        http.headers().frameOptions().disable()
         // configuration permissions
         // only disable csrf than any post requests can be received by rest controller
         http.csrf().disable()
@@ -31,7 +32,8 @@ class WebSecurityConfig(
                 "/groups/allGroups/**",
                 "/groups/allGroups/byType",
                 "/tasks/allTasks",
-                "/tasks/allTasks/byType"
+                "/tasks/allTasks/byType",
+                "/tasks/allRunning"
             ).permitAll()
             .anyRequest().authenticated()
             .and()
