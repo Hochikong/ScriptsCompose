@@ -109,30 +109,25 @@
                     </button>
                 </div>
             </div>
+
             <div>
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation" v-for="g in all_groups">
-                        <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button"
-                                role="tab" aria-controls="home" aria-selected="true">{{ g.group }}
+                    <li class="nav-item" role="presentation" v-for="cluster in all_clusters">
+                        <button class="nav-link" id="home-tab" data-bs-toggle="tab" :data-bs-target="cluster.tid"
+                                type="button"
+                                role="tab" aria-controls="home" aria-selected="true">{{ cluster.value }}
                         </button>
                     </li>
-                    <!--                    <li class="nav-item" role="presentation">-->
-                    <!--                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>-->
-                    <!--                    </li>-->
-                    <!--                    <li class="nav-item" role="presentation">-->
-                    <!--                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>-->
-                    <!--                    </li>-->
-                    <!--                    <li class="nav-item" role="presentation">-->
-                    <!--                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Contact</button>-->
-                    <!--                    </li>-->
                 </ul>
 
                 <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div v-for="cluster in all_clusters" class="tab-pane fade show" :id="cluster.value" :class="cluster.active"
+                         role="tabpanel" aria-labelledby="home-tab">
                         <div class="container-fluid" style="margin-top: 20px">
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
+                                    <th scope="col">Group</th>
                                     <th scope="col">Command</th>
                                     <th scope="col">Job Type</th>
                                     <th scope="col">Interval</th>
@@ -141,7 +136,8 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="t in all_tasks">
+                                <tr v-for="t in filterByCluster(cluster.value)">
+                                    <td>{{ t.group }}</td>
                                     <td>{{ t.command }}</td>
                                     <td>{{ t.type }}</td>
                                     <td>{{ t.interval }}</td>
@@ -153,8 +149,6 @@
                         </div>
 
                     </div>
-                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
-                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
                 </div>
             </div>
 
@@ -162,24 +156,6 @@
         </main>
     </div>
 </div>
-<!--<script>-->
-<!--    let common_data = {}-->
-
-<!--    axios.get('/groups/allGroups')-->
-<!--        .then(function (response) {-->
-<!--            common_data['all_groups'] = response.data.groups-->
-
-<!--            const HelloVueApp = {-->
-<!--                data() {-->
-<!--                    return {-->
-<!--                        all_groups: common_data['all_groups'].map(function gen(ele){return {"group": ele}})-->
-<!--                    }-->
-<!--                }-->
-<!--            }-->
-
-<!--            Vue.createApp(HelloVueApp).mount('#vue-app')-->
-<!--        })-->
-<!--</script>-->
 <script src="/js/cron_dashboard.logic.js"></script>
 </body>
 </html>

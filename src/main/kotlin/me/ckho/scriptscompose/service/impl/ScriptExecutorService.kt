@@ -110,7 +110,7 @@ class ScriptExecutorService(
                 generateUIDForTask(
                     """
                     ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} $start $end
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} one
                 """.trimIndent()
                 )
             }
@@ -118,7 +118,7 @@ class ScriptExecutorService(
                 generateUIDForTask(
                     """
                     ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} ${scg.start_at}
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} cron ${scg.start_at}
                 """.trimIndent()
                 )
             }
@@ -126,7 +126,7 @@ class ScriptExecutorService(
                 generateUIDForTask(
                     """
                     ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} $start ${scg.start_at}
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} repeat ${scg.start_at}
                 """.trimIndent()
                 )
             }

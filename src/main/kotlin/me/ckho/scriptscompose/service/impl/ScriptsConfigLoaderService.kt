@@ -38,7 +38,7 @@ class ScriptsConfigLoaderService(
     }
 
     fun getGroupsByType(type: String): List<String> {
-        return scg.script_groups.filter { it.job_type == type }.map { it.group_name }.toList()
+        return scg.script_groups.filter { it.job_type == type }.map { it.cluster }.toList()
     }
 
     fun getAllTasksFromSCG(): List<ScriptGroupExpand> {

@@ -32,7 +32,6 @@ function getAllCluster() {
     return result
 }
 
-
 const MainDataApp = {
     data() {
         return {
@@ -48,7 +47,7 @@ const MainDataApp = {
     }
 }
 
-axios.get('/tasks/allTasks/byType?type=cron')
+axios.get('/tasks/allTasks/byType?type=one')
     .then(function (response) {
         common_data['all_tasks'] = response.data["tasks"]
     }).then(function () {
