@@ -9,7 +9,7 @@ script_groups:
           - python
           - -u
           - nm_compose.py
-          - -c 1283928888888888888888888888888888322u13u123123233323123131232.txt
+          - -c A.txt
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
     start_at: '0 * * ? * * *'
 

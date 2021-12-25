@@ -33,7 +33,8 @@ class WebSecurityConfig(
                 "/groups/allGroups/byType",
                 "/tasks/allTasks",
                 "/tasks/allTasks/byType",
-                "/tasks/allRunning"
+                "/tasks/allRunning",
+                "/tasks/interrupt"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

@@ -46,14 +46,15 @@ class QuartzService(@Autowired val scheduler: Scheduler) {
             jobDataMap["interval"] = 500
         }
 
-        val desc: String = if (isCron){
+        val desc: String = if (isCron) {
             "A cron job"
-        }else{
+        } else {
             "A simple one time job"
         }
 
+        val key = UUID.randomUUID().toString()
         return JobBuilder.newJob(SimpleJob::class.java)
-            .withIdentity(UUID.randomUUID().toString(), groupName)
+            .withIdentity(key, groupName)
             .withDescription(desc)
             .usingJobData(jobDataMap)
             .build()

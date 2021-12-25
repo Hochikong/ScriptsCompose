@@ -31,6 +31,6 @@ class SimpleJob(
     }
 
     override fun interrupt() {
-        executor.stop()
+        executor.halt()
     }
 }

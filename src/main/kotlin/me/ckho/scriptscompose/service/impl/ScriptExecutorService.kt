@@ -29,7 +29,9 @@ import kotlin.concurrent.thread
 @Scope(value = "prototype")
 class ScriptExecutorService(
     @Autowired
-    private val SLR: ScriptLogsRepository
+    private val SLR: ScriptLogsRepository,
+    @Autowired
+    private val cache: DataCache
 ) {
     private var logger: Logger = LoggerFactory.getLogger(ScriptExecutorService::class.java)
     private val stdDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -45,6 +47,8 @@ class ScriptExecutorService(
     var uid = "Script Executor Service -> ${UUID.randomUUID()}"
     private var currentTaskUUID = ""
     private var currentJobType = ""
+    private var currentTaskHash = ""
+    private var taskInterrupt = false
 
     fun getOutput(): Array<String> {
         return arrayOf(stdoutAccumulate, stderrAccumulate)
@@ -74,36 +78,11 @@ class ScriptExecutorService(
         taskRunningFlag = true
         val start = getCurrentDatetimeAsDate()
 
-
-        val tmpTaskHash = UUID.randomUUID().toString()
-        currentTaskUUID = tmpTaskHash
-
-        val r = SLR.save(
-            ScriptLogsEntity(
-                startTime = start,
-                endTime = Date.from(string2instant("1970-01-01 00:00:00")),
-                cluster = scg.cluster,
-                jobGroup = scg.group_name,
-                jobType = scg.job_type,
-                jobInterval = scg.interval,
-                jobCommand = command.reduce { acc, s -> acc + s },
-                jobTrigger = scg.start_at,
-                workingDir = scg.working_dir,
-                logHash = "",
-                taskHash = tmpTaskHash,
-                taskStatus = ScriptLogTaskStatus.RUNNING.desc,
-                jobLogs = ClobProxy.generateProxy(stdoutAccumulate + stderrAccumulate)
-            )
+        val taskHash = generateUIDForTask(
+            """
+            ${scg.group_name} ${scg.job_type} ${scg.interval} ${command.reduce { acc, s -> acc + s }} ${scg.working_dir}
+        """.trimIndent()
         )
-        val jobID = r.id
-
-        File("A.txt").writeText(r.toString())
-
-        proc = rt.exec(command, null, File(workingDir))
-        proc.waitFor()
-        val end = getCurrentDatetimeAsDate()
-        taskRunningFlag = false
-        logger.info("### Run end ###")
 
         val logHash = when (scg.job_type) {
             "one" -> {
@@ -135,39 +114,49 @@ class ScriptExecutorService(
             }
         }
 
-        val taskHash = generateUIDForTask(
-            """
-            ${scg.group_name} ${scg.job_type} ${scg.interval} ${command.reduce { acc, s -> acc + s }} ${scg.working_dir}
-        """.trimIndent()
+        currentTaskUUID = logHash
+        currentTaskHash = taskHash
+
+        val r = SLR.save(
+            ScriptLogsEntity(
+                startTime = start,
+                endTime = Date.from(string2instant("1970-01-01 00:00:00")),
+                cluster = scg.cluster,
+                jobGroup = scg.group_name,
+                jobType = scg.job_type,
+                jobInterval = scg.interval,
+                jobCommand = command.reduce { acc, s -> acc + s },
+                jobTrigger = scg.start_at,
+                workingDir = scg.working_dir,
+                logHash = logHash,
+                taskHash = taskHash,
+                taskStatus = ScriptLogTaskStatus.RUNNING.desc,
+                jobLogs = ClobProxy.generateProxy(stdoutAccumulate + stderrAccumulate)
+            )
         )
+
+        val jobID = r.id
+
+        proc = rt.exec(command, null, File(workingDir))
+        proc.waitFor()
+        val end = getCurrentDatetimeAsDate()
+
+        taskRunningFlag = false
+        logger.info("### Run end ###")
+
 
         // update
         val sLER = SLR.findById(jobID!!.toLong()).get()
         sLER.endTime = end
-        sLER.logHash = logHash
-        sLER.taskHash = taskHash
-        sLER.taskStatus = ScriptLogTaskStatus.FINISHED.desc
+        if (taskInterrupt){
+            sLER.taskStatus = ScriptLogTaskStatus.CANCELLED.desc
+        }else{
+            sLER.taskStatus = ScriptLogTaskStatus.FINISHED.desc
+        }
+        taskInterrupt = false
         sLER.jobLogs = ClobProxy.generateProxy(stdoutAccumulate + stderrAccumulate)
 
-        File("B.txt").writeText(sLER.toString())
-
         SLR.save(sLER)
-//        SLR.save(
-//            ScriptLogsEntity(
-//                startTime = start,
-//                endTime = end,
-//                jobGroup = scg.group_name,
-//                jobType = scg.job_type,
-//                jobInterval = scg.interval,
-//                jobCommand = command.reduce { acc, s -> acc + s },
-//                jobTrigger = scg.start_at,
-//                workingDir = scg.working_dir,
-//                logHash = logHash,
-//                taskHash = taskHash,
-//                taskStatus = ScriptLogTaskStatus.FINISHED.desc,
-//                jobLogs = ClobProxy.generateProxy(stdoutAccumulate + stderrAccumulate)
-//            )
-//        )
     }
 
     private fun getCurrentDatetime(): String {
@@ -241,9 +230,27 @@ class ScriptExecutorService(
                 Thread.sleep(executeInterval)
             }
         }
+
+        thread {
+            while (!stopThreadsFlag) {
+                if (currentTaskHash in cache.needToHaltTasks){
+                    this.halt()
+                    cache.needToHaltTasks.remove(currentTaskHash)
+                }
+                if (currentTaskHash in cache.needToInterruptTasks){
+                    this.interrupt()
+                    cache.needToInterruptTasks.remove(currentTaskHash)
+                }
+            }
+        }
     }
 
-    fun stop() {
+    fun interrupt(){
+        proc.destroy()
+        taskInterrupt = true
+    }
+
+    fun halt() {
         proc.destroy()
         stopThreadsFlag = true
     }
