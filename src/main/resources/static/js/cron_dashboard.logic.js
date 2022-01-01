@@ -9,7 +9,8 @@ function getAllTasks() {
             "full_command": ele["command"],
             "type": ele["job_type"],
             "interval": ele["interval"],
-            "trigger": ele["start_at"]
+            "trigger": ele["start_at"],
+            "task_hash": ele["task_hash"]
         }
     })
 }

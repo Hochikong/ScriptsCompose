@@ -4,19 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import me.ckho.scriptscompose.domain.dataclasses.ScriptComposeConfig
 import me.ckho.scriptscompose.domain.dataclasses.ScriptGroupExpand
-import me.ckho.scriptscompose.domain.dataclasses.ScriptLog
-import me.ckho.scriptscompose.domain.enums.ScriptLogTaskStatus
-import me.ckho.scriptscompose.repository.ScriptLogsRepository
 import me.ckho.scriptscompose.utils.ResponseFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.File
 
 @Service
-class ScriptsConfigLoaderService(
-    @Autowired
-    private val SLR: ScriptLogsRepository
-) {
+class ScriptsConfigLoaderService {
     private lateinit var scg: ScriptComposeConfig
 
     private val mapper = ObjectMapper(YAMLFactory()).apply { findAndRegisterModules() }
@@ -41,6 +34,9 @@ class ScriptsConfigLoaderService(
         return scg.script_groups.filter { it.job_type == type }.map { it.cluster }.toList()
     }
 
+    /**
+     * Only get registered tasks' detail, not with script logs
+     * */
     fun getAllTasksFromSCG(): List<ScriptGroupExpand> {
         val result = mutableListOf<ScriptGroupExpand>()
         for (sg in scg.script_groups) {
@@ -50,6 +46,9 @@ class ScriptsConfigLoaderService(
         return result
     }
 
+    /**
+     * Only get registered tasks' detail by job type, not with script logs
+     * */
     fun getAllTasksByType(type: String): List<ScriptGroupExpand> {
         val result = mutableListOf<ScriptGroupExpand>()
         for (sg in scg.script_groups) {
@@ -61,15 +60,13 @@ class ScriptsConfigLoaderService(
         return result
     }
 
-    fun getAllRunningTasks(): List<ScriptLog> {
-        val r = SLR.findByTaskStatus(ScriptLogTaskStatus.RUNNING.desc)
-        val result = mutableListOf<ScriptLog>()
-        for (sle in r) {
-            if (sle != null) {
-                result.add(ResponseFactory.buildScriptLogsResponse(sle))
-            }
+    fun getTaskByTaskHash(taskHash: String): ScriptGroupExpand {
+        val result = mutableListOf<ScriptGroupExpand>()
+        for (sg in scg.script_groups) {
+            val tmp = ResponseFactory.buildScriptGroupExpandResponse(sg)
+            tmp.map { result.add(it) }
         }
-        return result
+        return result.filter { it.task_hash == taskHash }.toList()[0]
     }
 
     /**
@@ -80,3 +77,5 @@ class ScriptsConfigLoaderService(
         return mapper.readValue(File(path), ScriptComposeConfig::class.java)
     }
 }
+
+

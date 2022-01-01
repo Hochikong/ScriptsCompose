@@ -13,7 +13,8 @@ class MvcConfig : WebMvcConfigurer {
         registry.addViewController("/login").setViewName("login")
         registry.addViewController("/cronDash").setViewName("cronDash")
         registry.addViewController("/oneDash").setViewName("oneDash")
-        registry.addViewController("/allTasks").setViewName("allTasks")
-        registry.addViewController("/allGroups").setViewName("allGroups")
+//        registry.addViewController("/allTasks").setViewName("allTasks")
+//        registry.addViewController("/allGroups").setViewName("allGroups")
+        registry.addViewController("/taskDetails").setViewName("taskDetails")
     }
 }

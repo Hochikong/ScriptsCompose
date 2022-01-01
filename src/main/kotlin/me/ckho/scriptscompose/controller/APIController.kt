@@ -2,6 +2,7 @@ package me.ckho.scriptscompose.controller
 
 import me.ckho.scriptscompose.repository.ScriptLogsRepository
 import me.ckho.scriptscompose.service.impl.DataCache
+import me.ckho.scriptscompose.service.impl.ScriptLogsQueryService
 import me.ckho.scriptscompose.service.impl.ScriptsConfigLoaderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,7 +20,9 @@ class APIController(
     @Autowired
     var scls: ScriptsConfigLoaderService,
     @Autowired
-    val cache: DataCache
+    val cache: DataCache,
+    @Autowired
+    val slqs: ScriptLogsQueryService
 ) {
 
     val passwordEncoder: PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
@@ -27,6 +30,9 @@ class APIController(
     //    private val oneTimeDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     var logger: Logger = LoggerFactory.getLogger(APIController::class.java)
 
+    /**
+     * Generate password hash
+     * */
     @GetMapping("/utils/hash", produces = ["application/json"])
     fun cal(raw: String): String {
         val p = passwordEncoder.encode(raw)
@@ -34,6 +40,9 @@ class APIController(
         return p
     }
 
+    /**
+     * List all script groups
+     * */
     @GetMapping("/groups/allGroups", produces = ["application/json"])
     fun getAllGroups(): Map<String, Any> {
         val r = scls.getAllGroupsFromSCG()
@@ -44,6 +53,9 @@ class APIController(
         )
     }
 
+    /**
+     * List all script groups by job type
+     * */
     @GetMapping("/groups/allGroups/byType", produces = ["application/json"])
     fun getAllGroupsByType(type: String): Map<String, Any> {
         return if (type != "cron" && type != "one") {
@@ -75,6 +87,16 @@ class APIController(
         )
     }
 
+    @GetMapping("/tasks/detail", produces = ["application/json"])
+    fun getTaskByTaskHash(task_hash: String): Map<String, Any> {
+        val r = scls.getTaskByTaskHash(task_hash)
+        return mapOf(
+            "task" to r,
+            "message" to "Query done.",
+            "code" to 200
+        )
+    }
+
     /**
      * Return all registered tasks by type
      * */
@@ -96,46 +118,78 @@ class APIController(
         }
     }
 
+    /**
+     * Get all running tasks
+     * */
     @GetMapping("/tasks/allRunning", produces = ["application/json"])
     fun getAllRunningTasks(): Map<String, Any> {
         return mapOf(
-            "tasks" to scls.getAllRunningTasks(),
+            "tasks" to slqs.getAllRunningTasks(),
             "message" to "Query done.",
             "code" to 200
         )
     }
 
+    /**
+     * Interrupt only cancel tasks has same TaskHash
+     * */
     @PutMapping("/tasks/interrupt", produces = ["application/json"])
     fun interruptRunningJob(task_hash: String): Map<String, Any> {
-        val currentRunningTaskHash = scls.getAllRunningTasks().map { it.taskHash }.toList()
+        val currentRunningTaskHash = slqs.getAllRunningTasks().map { it.taskHash }.toList()
         return if (task_hash in currentRunningTaskHash) {
             cache.needToInterruptTasks.add(task_hash)
             mapOf(
-                "message" to "Interrupt commit",
+                "message" to "Interrupt commit.",
                 "code" to 200
             )
         } else {
             mapOf(
-                "message" to "No such running task",
+                "message" to "No such running task.",
                 "code" to 403
             )
         }
     }
 
+    /**
+     * Halt will cancel all groups which contain running task with the same TaskHash
+     * */
     @PutMapping("/tasks/halt", produces = ["application/json"])
     fun haltRunningGroup(task_hash: String): Map<String, Any> {
-        val currentRunningTaskHash = scls.getAllRunningTasks().map { it.taskHash }.toList()
+        val currentRunningTaskHash = slqs.getAllRunningTasks().map { it.taskHash }.toList()
         return if (task_hash in currentRunningTaskHash) {
             cache.needToHaltTasks.add(task_hash)
             mapOf(
-                "message" to "Halt commit",
+                "message" to "Halt commit.",
                 "code" to 200
             )
         } else {
             mapOf(
-                "message" to "No such running task",
+                "message" to "No such running task.",
                 "code" to 403
             )
         }
+    }
+
+    /**
+     * Get all logs' start_time and end_time and corresponds log_hash by TaskHash, need full timestamp, length is 13
+     * */
+    @GetMapping("/logs/brief", produces = ["application/json"])
+    fun getLogsBrief(task_hash: String, st: Long, ed: Long): Map<String, Any> {
+        val result = slqs.getLogsBriefByTaskHash(task_hash, st, ed)
+        return mapOf(
+            "brief" to result,
+            "message" to "Query done.",
+            "code" to 200
+        )
+    }
+
+    @GetMapping("/logs/detail", produces = ["application/json"])
+    fun getLogDetail(log_hash: String): Map<String, Any> {
+        val result = slqs.getLogsByLogHash(log_hash)
+        return mapOf(
+            "log" to result,
+            "message" to "Query done.",
+            "code" to 200
+        )
     }
 }

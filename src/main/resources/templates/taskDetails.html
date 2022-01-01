@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.88.1">
+    <title>Task Details</title>
+    <!--    <script src="/js/vue.global.prod.js"></script>-->
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+
+    <!-- Custom styles for this template -->
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">Scripts Composer Dashboard</a>
+    <div class="navbar-nav">
+        <div class="nav-item text-nowrap">
+            <a class="nav-link px-3" href="javascript: document.logoutForm.submit()">Log out</a>
+            <form th:action="@{/logout}" class="nav-link px-3" method="post" th:hidden="true" name="logoutForm">
+                <input type="submit" value="Log Out"/>
+            </form>
+        </div>
+    </div>
+</header>
+
+<div class="container-fluid" id="vue-app">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cronDash">
+                            <span data-feather="home"></span>
+                            Cron Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/oneDash">
+                            <span data-feather="file"></span>
+                            One Time Tasks
+                        </a>
+                    </li>
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="/allGroups">-->
+<!--                            <span data-feather="shopping-cart"></span>-->
+<!--                            All Register Groups-->
+<!--                        </a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="/allTasks">-->
+<!--                            <span data-feather="users"></span>-->
+<!--                            All Register Commands-->
+<!--                        </a>-->
+<!--                    </li>-->
+                </ul>
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Management Shortcut</span>
+                    <a class="link-secondary" href="#" aria-label="Add a new report">
+                        <span data-feather="plus-circle"></span>
+                    </a>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <span data-feather="file-text"></span>
+                            Clean all script logs from DB
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Task Details And Script Logs Viewer</h1>
+                <!--                <div class="btn-toolbar mb-2 mb-md-0">-->
+                <!--                    <div class="btn-group me-2">-->
+                <!--                        <button type="button" class="btn btn-sm btn-outline-secondary">Refresh</button>-->
+                <!--                    </div>-->
+                <!--                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">-->
+                <!--                        <span data-feather="calendar"></span>-->
+                <!--                        This week-->
+                <!--                    </button>-->
+                <!--                </div>-->
+            </div>
+
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#task-details" type="button"
+                            role="tab" aria-selected="true">Task Details
+                    </button>
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#log-viewer" type="button" role="tab"
+                            aria-selected="false">Log Viewer
+                    </button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="task-details" role="tabpanel">
+                    <table class="table table-hover" style="margin-top: 20px">
+                        <tbody>
+                        <tr>
+                            <td class="table-primary">Task Hash</td>
+                            <td th:text="${task_hash}"></td>
+                        </tr>
+                        <tr>
+                            <td class="table-primary">Cluster</td>
+                            <td>{{ current_detail.cluster }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-primary">Group</td>
+                            <td>{{ current_detail.group }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-primary">Command</td>
+                            <td>{{ current_detail.command }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-primary">Job type</td>
+                            <td>{{ current_detail.type }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-primary">Interval</td>
+                            <td>{{ current_detail.interval }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-primary">Trigger</td>
+                            <td>{{ current_detail.trigger }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="log-viewer" role="tabpanel">
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                        <div class="container-fluid">
+                            <div class="collapse navbar-collapse">
+                                <form class="d-flex">
+                                    <input id="st_date_input" class="form-control me-2 p-1" type="search"
+                                           data-bs-toggle="tooltip" data-bs-placement="top"
+                                           title="Format -> yyyy-mm-dd HH:MM:SS" placeholder="start_time"
+                                           @click="reset_day_range" v-model="st_str">
+                                </form>
+                                <form class="d-flex">
+                                    <input id="ed_date_input" class="form-control me-2 p-1" type="search"
+                                           data-bs-toggle="tooltip" data-bs-placement="top"
+                                           title="Format -> yyyy-mm-dd HH:MM:SS" placeholder="end_time"
+                                           @click="reset_day_range" v-model="ed_str">
+                                </form>
+
+                                <div class="btn-toolbar">
+                                    <div class="btn-group me-2">
+                                        <button type="button" class="btn btn-primary dropdown-toggle"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                            {{ get_time_range }}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('10m')">Last 10 miutes
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('1h')">Last 1 Hours
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('3h')">Last 3 Hours
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('6h')">Last 6 Hours
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('12h')">Last 12 Hours
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('24h')">Last 24 Hours
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('1d')">Last 1 Days
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('2d')">Last 2 Days
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" type="button"
+                                                        @click="switch_day_range('7d')">Last 7 Days
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+
+                                    <div class="btn-group me-2">
+                                        <button class="btn btn-primary" @click="fetch_brief">Fetch Logs Brief</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                        <div class="container-fluid">
+                            <div class="collapse navbar-collapse">
+                                <div class="btn-toolbar">
+                                    <div class="btn-group me-2">
+                                        <button type="button" class="btn btn-primary dropdown-toggle"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                            {{ brief_duration }}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li v-for="b in show_all_briefs">
+                                                <button class="dropdown-item" type="button"
+                                                        @click="change_brief(b.duration, b.log_hash)">{{ b.duration }}
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+
+                                    <div class="btn-group me-2">
+                                        <button class="btn btn-primary" @click="get_log_content">Check Script Log
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <div class="overflow-auto mt-1" style="white-space: pre-line; background: #c5d7f2">{{ log_content }}</div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script th:inline="javascript">
+    let current_task_hash = [[${task_hash}]];
+</script>
+<script src="/js/task_detail.logic.js"></script>
+</body>
+</html>

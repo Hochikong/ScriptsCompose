@@ -15,7 +15,8 @@ object ResponseFactory {
                 interval = scg.interval,
                 command = it.command_arg_seq.reduce { acc, s -> "$acc $s" },
                 working_dir = scg.working_dir,
-                start_at = scg.start_at
+                start_at = scg.start_at,
+                task_hash = generateUIDForTask("${scg.group_name} ${scg.job_type} ${scg.interval} ${it.command_arg_seq.reduce { acc, s -> "$acc $s" }} ${scg.working_dir}")
             )
         }.toList()
     }

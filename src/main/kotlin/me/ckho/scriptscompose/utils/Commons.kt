@@ -5,11 +5,13 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 val JSONMapper: ObjectMapper = ObjectMapper().registerModule(
@@ -34,10 +36,19 @@ fun generateUIDForTask(input: String): String {
     return hashtext
 }
 
-fun string2instant(datetime: String): Instant{
+fun string2instant(datetime: String): Instant {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val temporalAccessor = formatter.parse(datetime)
     val localDateTime = LocalDateTime.from(temporalAccessor)
     val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault())
     return Instant.from(zonedDateTime)
+}
+
+fun string2date(datetime: String): Date {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    return Timestamp.valueOf(LocalDateTime.parse(datetime, formatter))
+}
+
+fun timestamp2date(timestamp: Long): Date{
+    return Date(Timestamp(timestamp).time)
 }

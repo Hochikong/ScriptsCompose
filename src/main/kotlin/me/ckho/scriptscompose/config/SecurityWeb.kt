@@ -34,7 +34,10 @@ class WebSecurityConfig(
                 "/tasks/allTasks",
                 "/tasks/allTasks/byType",
                 "/tasks/allRunning",
-                "/tasks/interrupt"
+                "/tasks/interrupt",
+                "/tasks/detail",
+                "/logs/brief",
+                "/logs/detail"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

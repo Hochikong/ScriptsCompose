@@ -70,8 +70,8 @@ class ScriptExecutorService(
 
     fun runShellCommand(command: Array<String>, workingDir: String) {
         // reset
-        stdoutAccumulate = "** STDOUT **\n"
-        stderrAccumulate = "** STDERR **\n"
+        stdoutAccumulate = "<STDOUT>\n"
+        stderrAccumulate = "<STDERR>\n"
 
         logger.info("### Run a command ###")
         val rt = Runtime.getRuntime()
@@ -80,7 +80,7 @@ class ScriptExecutorService(
 
         val taskHash = generateUIDForTask(
             """
-            ${scg.group_name} ${scg.job_type} ${scg.interval} ${command.reduce { acc, s -> acc + s }} ${scg.working_dir}
+            ${scg.group_name} ${scg.job_type} ${scg.interval} ${command.reduce { acc, s -> "$acc $s" }} ${scg.working_dir}
         """.trimIndent()
         )
 
@@ -89,7 +89,7 @@ class ScriptExecutorService(
                 generateUIDForTask(
                     """
                     ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} one
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} one $start
                 """.trimIndent()
                 )
             }
@@ -97,7 +97,7 @@ class ScriptExecutorService(
                 generateUIDForTask(
                     """
                     ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} cron ${scg.start_at}
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} cron ${scg.start_at} $start
                 """.trimIndent()
                 )
             }
@@ -105,7 +105,7 @@ class ScriptExecutorService(
                 generateUIDForTask(
                     """
                     ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} repeat ${scg.start_at}
+                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} repeat ${scg.start_at} $start
                 """.trimIndent()
                 )
             }
@@ -120,7 +120,7 @@ class ScriptExecutorService(
         val r = SLR.save(
             ScriptLogsEntity(
                 startTime = start,
-                endTime = Date.from(string2instant("1970-01-01 00:00:00")),
+                endTime = Date.from(string2instant("2035-01-01 00:00:00")),
                 cluster = scg.cluster,
                 jobGroup = scg.group_name,
                 jobType = scg.job_type,
@@ -131,7 +131,7 @@ class ScriptExecutorService(
                 logHash = logHash,
                 taskHash = taskHash,
                 taskStatus = ScriptLogTaskStatus.RUNNING.desc,
-                jobLogs = ClobProxy.generateProxy(stdoutAccumulate + stderrAccumulate)
+                jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - $stderrAccumulate \n</STDERR>\n")
             )
         )
 
@@ -148,13 +148,13 @@ class ScriptExecutorService(
         // update
         val sLER = SLR.findById(jobID!!.toLong()).get()
         sLER.endTime = end
-        if (taskInterrupt){
+        if (taskInterrupt) {
             sLER.taskStatus = ScriptLogTaskStatus.CANCELLED.desc
-        }else{
+        } else {
             sLER.taskStatus = ScriptLogTaskStatus.FINISHED.desc
         }
         taskInterrupt = false
-        sLER.jobLogs = ClobProxy.generateProxy(stdoutAccumulate + stderrAccumulate)
+        sLER.jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - $stderrAccumulate \n</STDERR>\n")
 
         SLR.save(sLER)
     }
@@ -233,11 +233,11 @@ class ScriptExecutorService(
 
         thread {
             while (!stopThreadsFlag) {
-                if (currentTaskHash in cache.needToHaltTasks){
+                if (currentTaskHash in cache.needToHaltTasks) {
                     this.halt()
                     cache.needToHaltTasks.remove(currentTaskHash)
                 }
-                if (currentTaskHash in cache.needToInterruptTasks){
+                if (currentTaskHash in cache.needToInterruptTasks) {
                     this.interrupt()
                     cache.needToInterruptTasks.remove(currentTaskHash)
                 }
@@ -245,7 +245,7 @@ class ScriptExecutorService(
         }
     }
 
-    fun interrupt(){
+    fun interrupt() {
         proc.destroy()
         taskInterrupt = true
     }

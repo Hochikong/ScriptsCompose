@@ -7,5 +7,6 @@ data class ScriptGroupExpand(
     val interval: Int,
     val command: String,
     val working_dir: String,
-    val start_at: String
+    val start_at: String,
+    val task_hash: String
 )
