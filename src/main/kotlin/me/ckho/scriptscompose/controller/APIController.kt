@@ -102,7 +102,7 @@ class APIController(
      * */
     @GetMapping("/tasks/allTasks/byType", produces = ["application/json"])
     fun getTasksByType(type: String): Map<String, Any> {
-        return if (type != "cron" && type != "one") {
+        return if (type != "cron" && type != "one" && type != "repeat") {
             mapOf(
                 "tasks" to "none",
                 "message" to "Unsupported type.",
@@ -115,6 +115,37 @@ class APIController(
                 "message" to "Query done.",
                 "code" to 200
             )
+        }
+    }
+
+    /**
+     * Return all registered tasks by type, but "one" will return "one" and "repeat" jobs
+     * */
+    @GetMapping("/tasks/allTasks/byType/v2", produces = ["application/json"])
+    fun getTasksByTypeV2(type: String): Map<String, Any> {
+        return if (type != "cron" && type != "one" && type != "repeat") {
+            mapOf(
+                "tasks" to "none",
+                "message" to "Unsupported type.",
+                "code" to 403
+            )
+        } else {
+            if (type == "one"){
+                val r1 = scls.getAllTasksByType(type)
+                val r2 = scls.getAllTasksByType("repeat")
+                mapOf(
+                    "tasks" to listOf(r1, r2).flatten(),
+                    "message" to "Query done.",
+                    "code" to 200
+                )
+            }else{
+                val r = scls.getAllTasksByType(type)
+                mapOf(
+                    "tasks" to r,
+                    "message" to "Query done.",
+                    "code" to 200
+                )
+            }
         }
     }
 

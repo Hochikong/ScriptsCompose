@@ -52,3 +52,9 @@ fun string2date(datetime: String): Date {
 fun timestamp2date(timestamp: Long): Date{
     return Date(Timestamp(timestamp).time)
 }
+
+fun convertToLocalDateTimeViaInstant(dateToConvert: Date): LocalDateTime {
+    return dateToConvert.toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDateTime()
+}

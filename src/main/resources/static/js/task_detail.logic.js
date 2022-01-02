@@ -15,6 +15,12 @@ function get_all_current_briefs() {
     return common_data['brief'];
 }
 
+// function replaceT(){
+//     for (let b in common_data['brief']) {
+//         b['duration'] = b['duration'].replace("T", " ")
+//     }
+// }
+
 function get_log_content(target_log_hash) {
     axios.get('/logs/detail?log_hash=' + target_log_hash)
         .then(function (response) {
@@ -33,13 +39,21 @@ function get_new_briefs(task_hash) {
     })
 }
 
+function getLogHash() {
+    if (common_data['brief'].length > 0) {
+        return common_data['brief'][0]['log_hash'];
+    } else {
+        return " ";
+    }
+}
+
 const MainDataApp = {
     data() {
         return {
             current_detail: getTaskDetail(),
             get_time_range: "10m",
             brief_duration: "Empty",
-            target_log_hash: common_data['brief'][0]['log_hash'],
+            target_log_hash: getLogHash(),
             show_all_briefs: get_all_current_briefs(),
             log_content: " ",
             st_str: "",
@@ -72,10 +86,10 @@ const MainDataApp = {
             this.get_time_range = "By Input";
         },
         fetch_brief() {
-            if (this.st_str.length > 0){
+            if (this.st_str.length > 0) {
                 common_data["st_timestamp"] = Date.parse(this.st_str)
             }
-            if (this.ed_str.length > 0){
+            if (this.ed_str.length > 0) {
                 common_data["ed_timestamp"] = Date.parse(this.ed_str)
             }
             get_new_briefs(current_task_hash);
@@ -104,7 +118,7 @@ let root;
 // default fetch in 2 mintues
 axios.get('logs/brief?task_hash=' + current_task_hash + "&st=" + new Date(new Date() - 30 * 60000).getTime() + "&ed=" + new Date().getTime())
     .then(function (response) {
-        common_data['brief'] = response.data['brief']
+        common_data['brief'] = response.data['brief'];
     }).then(function () {
     app = Vue.createApp(MainDataApp);
     root = app.mount('#vue-app');

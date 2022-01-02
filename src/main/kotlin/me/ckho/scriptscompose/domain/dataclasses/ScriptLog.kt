@@ -1,11 +1,9 @@
 package me.ckho.scriptscompose.domain.dataclasses
 
-import java.util.*
-
 
 data class ScriptLog(
-    var startTime: Date,
-    var endTime: Date,
+    var startTime: String,
+    var endTime: String,
     var cluster: String,
     var jobGroup: String,
     var jobType: String,

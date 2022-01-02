@@ -45,6 +45,10 @@ class MainApp(
                         qz.addOneTimeJob(scg)
                         logger.info("Add one-time job group ${scg.group_name}")
                     }
+                    JobTypes.Repeat.t -> {
+                        qz.addOneTimeJob(scg)
+                        logger.info("Add repeat one-time job group ${scg.group_name}")
+                    }
                     JobTypes.Cron.t -> {
                         qz.addCronJob(scg)
                         logger.info("Add cron job group ${scg.group_name}")

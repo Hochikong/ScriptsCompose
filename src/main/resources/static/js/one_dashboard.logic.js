@@ -48,11 +48,15 @@ const MainDataApp = {
     }
 }
 
-axios.get('/tasks/allTasks/byType?type=one')
+let app;
+let root;
+
+axios.get('/tasks/allTasks/byType/v2?type=one')
     .then(function (response) {
         common_data['all_tasks'] = response.data["tasks"]
     }).then(function () {
-    Vue.createApp(MainDataApp).mount('#vue-app')
+    app = Vue.createApp(MainDataApp);
+    root = app.mount('#vue-app');
 })
 
 

@@ -16,5 +16,6 @@ class MvcConfig : WebMvcConfigurer {
 //        registry.addViewController("/allTasks").setViewName("allTasks")
 //        registry.addViewController("/allGroups").setViewName("allGroups")
         registry.addViewController("/taskDetails").setViewName("taskDetails")
+        registry.addViewController("/allRunning").setViewName("allRunning")
     }
 }

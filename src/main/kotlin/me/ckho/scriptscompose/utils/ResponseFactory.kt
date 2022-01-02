@@ -23,8 +23,8 @@ object ResponseFactory {
 
     fun buildScriptLogsResponse(sle: ScriptLogsEntity): ScriptLog {
         return ScriptLog(
-            startTime = sle.startTime,
-            endTime = sle.endTime,
+            startTime = convertToLocalDateTimeViaInstant(sle.startTime).toString().replace("T", " "),
+            endTime = convertToLocalDateTimeViaInstant(sle.endTime).toString().replace("T", " "),
             cluster = sle.cluster,
             jobGroup = sle.jobGroup,
             jobType = sle.jobType,
@@ -35,7 +35,8 @@ object ResponseFactory {
             logHash = sle.logHash,
             taskHash = sle.taskHash,
             taskStatus = sle.taskStatus,
-            jobLogs = sle.jobLogs.getSubString(1, sle.jobLogs.length().toInt())
+            jobLogs = "No Showing Here"
+//            jobLogs = sle.jobLogs.getSubString(1, sle.jobLogs.length().toInt())
         )
     }
 }

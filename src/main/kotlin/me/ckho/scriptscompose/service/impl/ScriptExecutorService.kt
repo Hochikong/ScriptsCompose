@@ -125,7 +125,7 @@ class ScriptExecutorService(
                 jobGroup = scg.group_name,
                 jobType = scg.job_type,
                 jobInterval = scg.interval,
-                jobCommand = command.reduce { acc, s -> acc + s },
+                jobCommand = command.reduce { acc, s -> "$acc $s" },
                 jobTrigger = scg.start_at,
                 workingDir = scg.working_dir,
                 logHash = logHash,

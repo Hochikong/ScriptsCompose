@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="generator" content="Hugo 0.88.1">
-    <title>Cron Tasks</title>
+    <title>Running Tasks</title>
     <!--    <script src="/js/vue.global.prod.js"></script>-->
     <script src="/js/vue.global.prod.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -71,18 +71,18 @@
                             Running Tasks
                         </a>
                     </li>
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="/allGroups">-->
-<!--                            <span data-feather="shopping-cart"></span>-->
-<!--                            All Register Groups-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="/allTasks">-->
-<!--                            <span data-feather="users"></span>-->
-<!--                            All Register Commands-->
-<!--                        </a>-->
-<!--                    </li>-->
+                    <!--                    <li class="nav-item">-->
+                    <!--                        <a class="nav-link" href="/allGroups">-->
+                    <!--                            <span data-feather="shopping-cart"></span>-->
+                    <!--                            All Register Groups-->
+                    <!--                        </a>-->
+                    <!--                    </li>-->
+                    <!--                    <li class="nav-item">-->
+                    <!--                        <a class="nav-link" href="/allTasks">-->
+                    <!--                            <span data-feather="users"></span>-->
+                    <!--                            All Register Commands-->
+                    <!--                        </a>-->
+                    <!--                    </li>-->
                 </ul>
 
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
@@ -104,19 +104,47 @@
 
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Cron Tasks</h1>
-<!--                <div class="btn-toolbar mb-2 mb-md-0">-->
-<!--                    <div class="btn-group me-2">-->
-<!--                        <button type="button" class="btn btn-sm btn-outline-secondary">Refresh</button>-->
-<!--                    </div>-->
-<!--                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">-->
-<!--                        <span data-feather="calendar"></span>-->
-<!--                        This week-->
-<!--                    </button>-->
-<!--                </div>-->
+                <h1 class="h2">All Running Tasks</h1>
+                <!--                <div class="btn-toolbar mb-2 mb-md-0">-->
+                <!--                    <div class="btn-group me-2">-->
+                <!--                        <button type="button" class="btn btn-sm btn-outline-secondary">Refresh</button>-->
+                <!--                    </div>-->
+                <!--                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">-->
+                <!--                        <span data-feather="calendar"></span>-->
+                <!--                        This week-->
+                <!--                    </button>-->
+                <!--                </div>-->
             </div>
 
             <div v-if="all_clusters.length > 0">
+                <div class="container-fluid" style="margin-top: 20px">
+                    <div class="modal fade" id="detail-modal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Task Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>start_time: {{ m_start_time }}</p>
+                                    <p>cluster: {{ m_cluster }}</p>
+                                    <p>group: {{ m_group }}</p>
+                                    <p>full_command: {{ m_full_command }}</p>
+                                    <p>type: {{ m_type }}</p>
+                                    <p>interval: {{ m_interval }}</p>
+                                    <p>trigger: {{ m_trigger }}</p>
+                                    <p>working_dir: {{ m_working_dir }}</p>
+                                    <p>log_hash: {{ m_log_hash }}</p>
+                                    <p>task_status: {{ m_task_status }}</p>
+                                    <p>task_hash: {{ m_task_hash }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation" v-for="cluster in all_clusters">
                         <button class="nav-link" id="home-tab" data-bs-toggle="tab" :data-bs-target="cluster.tid"
@@ -127,12 +155,14 @@
                 </ul>
 
                 <div class="tab-content" id="myTabContent">
-                    <div v-for="cluster in all_clusters" class="tab-pane fade show" :id="cluster.value" :class="cluster.active"
+                    <div v-for="cluster in all_clusters" class="tab-pane fade show" :id="cluster.value"
+                         :class="cluster.active"
                          role="tabpanel" aria-labelledby="home-tab">
-                        <div class="container-fluid" style="margin-top: 20px">
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
+                                    <th scope="col">Action</th>
+                                    <th scope="col">Action</th>
                                     <th scope="col">Group</th>
                                     <th scope="col">Command</th>
                                     <th scope="col">Job Type</th>
@@ -142,13 +172,15 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="t in filterByCluster(cluster.value)">
+                                <tr data-toggle="collapse" v-for="t in filterByCluster(cluster.value)">
+                                    <td><a class="link-warning" @click="interrupt_task(t.task_hash)">Interrupt Task</a></td>
+                                    <td><a class="link-danger" @click="halt_group(t.task_hash)">Halt Whole Group</a></td>
                                     <td>{{ t.group }}</td>
                                     <td>{{ t.command }}</td>
                                     <td>{{ t.type }}</td>
                                     <td>{{ t.interval }}</td>
                                     <td>{{ t.trigger }}</td>
-                                    <td><a :href="'/taskDetails?taskHash='+t.task_hash">More</a></td>
+                                    <td><a class="link-info" data-bs-toggle="modal" data-bs-target="#detail-modal" @click="update_detail_modal(t.log_hash)">More</a></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -160,7 +192,7 @@
 
             <div v-else>
                 <div class="alert alert-warning" role="alert">
-                    No Cron Tasks.
+                    No Running Tasks.
                 </div>
             </div>
 
@@ -168,6 +200,6 @@
         </main>
     </div>
 </div>
-<script src="/js/cron_dashboard.logic.js"></script>
+<script src="/js/allrunning.logic.js"></script>
 </body>
 </html>
