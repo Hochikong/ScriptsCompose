@@ -22,22 +22,22 @@ class WebSecurityConfig(
         http.headers().frameOptions().disable()
         // configuration permissions
         // only disable csrf than any post requests can be received by rest controller
-        http.csrf().disable()
-            .authorizeRequests()
+//        http.csrf().disable()
+        http.authorizeRequests()
             .antMatchers(
                 "/js/**",
                 "/css/**",
                 "/svg/**",
                 "/utils/**",
-                "/groups/allGroups/**",
-                "/groups/allGroups/byType",
-                "/tasks/allTasks",
-                "/tasks/allTasks/byType",
-                "/tasks/allRunning",
-                "/tasks/interrupt",
-                "/tasks/detail",
-                "/logs/brief",
-                "/logs/detail"
+//                "/groups/allGroups/**",
+//                "/groups/allGroups/byType",
+//                "/tasks/allTasks",
+//                "/tasks/allTasks/byType",
+//                "/tasks/allRunning",
+//                "/tasks/interrupt",
+//                "/tasks/detail",
+//                "/logs/brief",
+//                "/logs/detail"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

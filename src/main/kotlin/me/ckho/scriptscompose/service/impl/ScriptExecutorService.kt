@@ -131,7 +131,7 @@ class ScriptExecutorService(
                 logHash = logHash,
                 taskHash = taskHash,
                 taskStatus = ScriptLogTaskStatus.RUNNING.desc,
-                jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - $stderrAccumulate \n</STDERR>\n")
+                jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - \n$stderrAccumulate \n</STDERR>\n")
             )
         )
 
@@ -139,6 +139,29 @@ class ScriptExecutorService(
 
         proc = rt.exec(command, null, File(workingDir))
         proc.waitFor()
+
+        // std output and error output handle
+        val stdError = BufferedReader(InputStreamReader(proc.errorStream))
+        val stdInput = BufferedReader(InputStreamReader(proc.inputStream))
+
+        while (true) {
+            val outputCache = stdInput.readLine()
+            if (outputCache != null) {
+                stdoutAccumulate += "${getCurrentDatetime()}  $outputCache\n"
+            } else {
+                break
+            }
+        }
+
+        while (true) {
+            val errorCache = stdError.readLine()
+            if (errorCache != null) {
+                stdoutAccumulate += "${getCurrentDatetime()}  $errorCache\n"
+            } else {
+                break
+            }
+        }
+
         val end = getCurrentDatetimeAsDate()
 
         taskRunningFlag = false
@@ -154,7 +177,7 @@ class ScriptExecutorService(
             sLER.taskStatus = ScriptLogTaskStatus.FINISHED.desc
         }
         taskInterrupt = false
-        sLER.jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - $stderrAccumulate \n</STDERR>\n")
+        sLER.jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - \n$stderrAccumulate \n</STDERR>\n")
 
         SLR.save(sLER)
     }
@@ -170,47 +193,47 @@ class ScriptExecutorService(
     }
 
     fun start() {
-        thread {
-            while (!stopThreadsFlag) {
-                if (taskRunningFlag) {
-                    try {
-                        val stdInput = BufferedReader(InputStreamReader(proc.inputStream))
-                        var si: String?
-                        while (stdInput.readLine().also {
-                                si = it
-                                if (it != null) {
-                                    stdoutAccumulate += "${getCurrentDatetime()}  $it\n"
-                                }
-                            } != null) {
-                            logger.info(si)
-                        }
-                    } catch (_: Exception) {
-                    }
-                }
-                Thread.sleep(500)
-            }
-        }
+//        thread {
+//            while (!stopThreadsFlag) {
+//                if (taskRunningFlag) {
+//                    try {
+//                        val stdInput = BufferedReader(InputStreamReader(proc.inputStream))
+//                        var si: String?
+//                        while (stdInput.readLine().also {
+//                                si = it
+//                                if (it != null) {
+//                                    stdoutAccumulate += "${getCurrentDatetime()}  $it\n"
+//                                }
+//                            } != null) {
+//                            logger.info(si)
+//                        }
+//                    } catch (_: Exception) {
+//                    }
+//                }
+//                Thread.sleep(500)
+//            }
+//        }
 
-        thread {
-            while (!stopThreadsFlag) {
-                if (taskRunningFlag) {
-                    try {
-                        val stdError = BufferedReader(InputStreamReader(proc.errorStream))
-                        var se: String?
-                        while (stdError.readLine().also {
-                                se = it
-                                if (it != null) {
-                                    stderrAccumulate += "${getCurrentDatetime()}  $it\n"
-                                }
-                            } != null) {
-                            logger.info(se)
-                        }
-                    } catch (_: Exception) {
-                    }
-                }
-                Thread.sleep(500)
-            }
-        }
+//        thread {
+//            while (!stopThreadsFlag) {
+//                if (taskRunningFlag) {
+//                    try {
+//                        val stdError = BufferedReader(InputStreamReader(proc.errorStream))
+//                        var se: String?
+//                        while (stdError.readLine().also {
+//                                se = it
+//                                if (it != null) {
+//                                    stderrAccumulate += "${getCurrentDatetime()}  $it\n"
+//                                }
+//                            } != null) {
+//                            logger.info(se)
+//                        }
+//                    } catch (_: Exception) {
+//                    }
+//                }
+//                Thread.sleep(500)
+//            }
+//        }
 
         thread {
             while (!stopThreadsFlag) {
@@ -221,6 +244,10 @@ class ScriptExecutorService(
                         runShellCommand(c, wd)
                         commands.removeAt(0)
                         workingDirs.removeAt(0)
+
+                        if (commands.size == 0) {
+                            this.stopThreadsFlag = true
+                        }
                     } else {
                         val c = commands[0]
                         val wd = workingDirs[0]

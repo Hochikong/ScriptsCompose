@@ -6,6 +6,7 @@
     <meta name="description" content="">
     <meta name="generator" content="Hugo 0.88.1">
     <title>Running Tasks</title>
+    <link rel="icon" href="/svg/icon.svg" type="image/x-icon">
     <!--    <script src="/js/vue.global.prod.js"></script>-->
     <script src="/js/vue.global.prod.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -91,14 +92,14 @@
                         <span data-feather="plus-circle"></span>
                     </a>
                 </h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span data-feather="file-text"></span>
-                            Clean all script logs from DB
-                        </a>
-                    </li>
-                </ul>
+<!--                <ul class="nav flex-column mb-2">-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#">-->
+<!--                            <span data-feather="file-text"></span>-->
+<!--                            Clean all script logs from DB-->
+<!--                        </a>-->
+<!--                    </li>-->
+<!--                </ul>-->
             </div>
         </nav>
 
@@ -123,7 +124,8 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Task Details</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <p>start_time: {{ m_start_time }}</p>
@@ -139,25 +141,26 @@
                                     <p>task_hash: {{ m_task_hash }}</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation" v-for="cluster in all_clusters">
-                        <button class="nav-link" id="home-tab" data-bs-toggle="tab" :data-bs-target="cluster.tid"
-                                type="button"
-                                role="tab" aria-controls="home" aria-selected="true">{{ cluster.value }}
-                        </button>
-                    </li>
-                </ul>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation" v-for="cluster in all_clusters">
+                            <button class="nav-link" :class="cluster.active" id="home-tab" data-bs-toggle="tab" :data-bs-target="cluster.tid"
+                                    type="button"
+                                    role="tab" aria-controls="home" aria-selected="true">{{ cluster.value }}
+                            </button>
+                        </li>
+                    </ul>
 
-                <div class="tab-content" id="myTabContent">
-                    <div v-for="cluster in all_clusters" class="tab-pane fade show" :id="cluster.value"
-                         :class="cluster.active"
-                         role="tabpanel" aria-labelledby="home-tab">
+                    <div class="tab-content" id="myTabContent">
+                        <div v-for="cluster in all_clusters" class="tab-pane fade show" :id="cluster.value"
+                             :class="cluster.active"
+                             role="tabpanel" aria-labelledby="home-tab">
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
@@ -173,14 +176,19 @@
                                 </thead>
                                 <tbody>
                                 <tr data-toggle="collapse" v-for="t in filterByCluster(cluster.value)">
-                                    <td><a class="link-warning" @click="interrupt_task(t.task_hash)">Interrupt Task</a></td>
-                                    <td><a class="link-danger" @click="halt_group(t.task_hash)">Halt Whole Group</a></td>
+                                    <td><a class="link-warning" @click="interrupt_task(t.task_hash)">Interrupt Task</a>
+                                    </td>
+                                    <td><a class="link-danger" @click="halt_group(t.task_hash)">Halt Whole Group</a>
+                                    </td>
                                     <td>{{ t.group }}</td>
-                                    <td>{{ t.command }}</td>
+                                    <td data-bs-toggle="tooltip" data-bs-placement="top" :title="t.full_command">{{
+                                        t.command }}
+                                    </td>
                                     <td>{{ t.type }}</td>
                                     <td>{{ t.interval }}</td>
                                     <td>{{ t.trigger }}</td>
-                                    <td><a class="link-info" data-bs-toggle="modal" data-bs-target="#detail-modal" @click="update_detail_modal(t.log_hash)">More</a></td>
+                                    <td><a class="link-info" data-bs-toggle="modal" data-bs-target="#detail-modal"
+                                           @click="update_detail_modal(t.log_hash)">More</a></td>
                                 </tr>
                                 </tbody>
                             </table>
