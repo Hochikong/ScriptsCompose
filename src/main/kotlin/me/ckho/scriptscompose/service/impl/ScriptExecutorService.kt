@@ -38,6 +38,7 @@ class ScriptExecutorService(
     private var commands: MutableList<Array<String>> = mutableListOf()
     private var workingDirs: MutableList<String> = mutableListOf()
     private var stopThreadsFlag = false
+    @Volatile
     private var taskRunningFlag = false
     private var stdoutAccumulate: String = "** STDOUT **\n"
     private var stderrAccumulate: String = "** STDERR **\n"
@@ -237,6 +238,7 @@ class ScriptExecutorService(
 
         thread {
             while (!stopThreadsFlag) {
+                logger.warn("This $uid -> ${this.stopThreadsFlag}")
                 if (commands.size > 0) {
                     if (currentJobType != JobTypes.Repeat.t) {
                         val c = commands[0]
@@ -268,6 +270,7 @@ class ScriptExecutorService(
                     this.interrupt()
                     cache.needToInterruptTasks.remove(currentTaskHash)
                 }
+                Thread.sleep(500)
             }
         }
     }

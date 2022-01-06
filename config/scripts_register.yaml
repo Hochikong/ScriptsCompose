@@ -1,36 +1,36 @@
 script_groups:
-#  - group_name: SN2_1
-#    cluster: SN2
-#    job_type: repeat
-#    # seconds
-#    interval: 30
-#    commands:
-#      - command_arg_seq:
-#          - python
-#          - -u
-#          - nm_compose.py
-#          - -c A.txt
-#    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
-#    start_at: '2021-11-21 15:45:00'
-
-  - group_name: SN1_1
-    cluster: SN1
-    job_type: one
+  - group_name: SN2_1
+    cluster: SN2
+    job_type: repeat
     # seconds
-    interval: 10
+    interval: 30
     commands:
       - command_arg_seq:
           - python
           - -u
-          - sycm_compose.py
-          - -c 1.txt
-      - command_arg_seq:
-          - python
-          - -u
-          - sycm_compose.py
-          - -c sb.txt
+          - nm_compose.py
+          - -c A.txt
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
     start_at: '2021-11-21 15:45:00'
+
+#  - group_name: SN1_1
+#    cluster: SN1
+#    job_type: one
+#    # seconds
+#    interval: 10
+#    commands:
+#      - command_arg_seq:
+#          - python
+#          - -u
+#          - sycm_compose.py
+#          - -c 1.txt
+#      - command_arg_seq:
+#          - python
+#          - -u
+#          - sycm_compose.py
+#          - -c sb.txt
+#    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
+#    start_at: '2021-11-21 15:45:00'
 
 #  - group_name: SN1_2
 #    cluster: SN1

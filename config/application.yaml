@@ -11,5 +11,3 @@ spring:
     hibernate.ddl-auto: update
   quartz:
     job-store-type: memory
-    properties:
-      org.quartz.threadPool.threadCount: 5
