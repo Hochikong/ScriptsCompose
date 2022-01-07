@@ -207,7 +207,6 @@ class APIController(
     @GetMapping("/logs/brief", produces = ["application/json"])
     fun getLogsBrief(task_hash: String, st: Long, ed: Long): Map<String, Any> {
         val result = slqs.getLogsBriefByTaskHash(task_hash, st, ed)
-        print(result)
         return mapOf(
             "brief" to result,
             "message" to "Query done.",
