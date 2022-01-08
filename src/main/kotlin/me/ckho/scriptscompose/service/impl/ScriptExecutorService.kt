@@ -238,7 +238,6 @@ class ScriptExecutorService(
 
         thread {
             while (!stopThreadsFlag) {
-                logger.warn("This $uid -> ${this.stopThreadsFlag}")
                 if (commands.size > 0) {
                     if (currentJobType != JobTypes.Repeat.t) {
                         val c = commands[0]
