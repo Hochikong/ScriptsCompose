@@ -22,7 +22,7 @@ class WebSecurityConfig(
         http.headers().frameOptions().disable()
         // configuration permissions
         // only disable csrf than any post requests can be received by rest controller
-//        http.csrf().disable()
+        http.csrf().disable()
         http.authorizeRequests()
             .antMatchers(
                 "/js/**",
