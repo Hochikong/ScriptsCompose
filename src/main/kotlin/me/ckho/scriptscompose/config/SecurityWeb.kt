@@ -19,6 +19,7 @@ class WebSecurityConfig(
     val userService: UserDetailsService
 ) : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
+        http.formLogin().defaultSuccessUrl("/", true)
         http.headers().frameOptions().disable()
         // configuration permissions
         // only disable csrf than any post requests can be received by rest controller
