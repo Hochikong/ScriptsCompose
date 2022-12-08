@@ -10,13 +10,13 @@ object ResponseFactory {
         return scg.commands.map {
             ScriptGroupExpand(
                 cluster = scg.cluster,
-                group_name = scg.group_name,
-                job_type = scg.job_type,
+                group_name = scg.groupName,
+                job_type = scg.jobType,
                 interval = scg.interval,
-                command = it.command_arg_seq.reduce { acc, s -> "$acc $s" },
-                working_dir = scg.working_dir,
-                start_at = scg.start_at,
-                task_hash = generateUIDForTask("${scg.group_name} ${scg.job_type} ${scg.interval} ${it.command_arg_seq.reduce { acc, s -> "$acc $s" }} ${scg.working_dir}")
+                command = it.commandArgSeq.reduce { acc, s -> "$acc $s" },
+                working_dir = scg.workingDir,
+                start_at = scg.startAt,
+                task_hash = generateUIDForTask("${scg.groupName} ${scg.jobType} ${scg.interval} ${it.commandArgSeq.reduce { acc, s -> "$acc $s" }} ${scg.workingDir}")
             )
         }.toList()
     }

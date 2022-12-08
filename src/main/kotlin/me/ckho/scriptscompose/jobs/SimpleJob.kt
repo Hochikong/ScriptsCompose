@@ -26,7 +26,7 @@ class SimpleJob(
         val wd = jdm["working_dir"] as String
 
         for (s in script){
-            executor.commitShellCommand(s.command_arg_seq, wd, jobType as String)
+            executor.commitShellCommand(s.commandArgSeq, wd, jobType as String)
         }
     }
 

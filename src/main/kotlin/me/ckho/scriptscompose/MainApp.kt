@@ -39,19 +39,19 @@ class MainApp(
         }
 
         if (sc != null) {
-            for (scg in sc.script_groups){
-                when (scg.job_type) {
+            for (scg in sc.scriptGroups){
+                when (scg.jobType) {
                     JobTypes.OneTime.t -> {
                         qz.addOneTimeJob(scg)
-                        logger.info("Add one-time job group ${scg.group_name}")
+                        logger.info("Add one-time job group ${scg.groupName}")
                     }
                     JobTypes.Repeat.t -> {
                         qz.addOneTimeJob(scg)
-                        logger.info("Add repeat one-time job group ${scg.group_name}")
+                        logger.info("Add repeat one-time job group ${scg.groupName}")
                     }
                     JobTypes.Cron.t -> {
                         qz.addCronJob(scg)
-                        logger.info("Add cron job group ${scg.group_name}")
+                        logger.info("Add cron job group ${scg.groupName}")
                     }
                 }
             }

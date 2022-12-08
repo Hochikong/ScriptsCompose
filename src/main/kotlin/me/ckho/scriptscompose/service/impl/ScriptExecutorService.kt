@@ -81,32 +81,32 @@ class ScriptExecutorService(
 
         val taskHash = generateUIDForTask(
             """
-            ${scg.group_name} ${scg.job_type} ${scg.interval} ${command.reduce { acc, s -> "$acc $s" }} ${scg.working_dir}
+            ${scg.groupName} ${scg.jobType} ${scg.interval} ${command.reduce { acc, s -> "$acc $s" }} ${scg.workingDir}
         """.trimIndent()
         )
 
-        val logHash = when (scg.job_type) {
+        val logHash = when (scg.jobType) {
             "one" -> {
                 generateUIDForTask(
                     """
-                    ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} one $start
+                    ${scg.groupName} ${scg.jobType} ${scg.interval} 
+                    ${command.reduce { acc, s -> acc + s }} ${scg.workingDir} one $start
                 """.trimIndent()
                 )
             }
             "cron" -> {
                 generateUIDForTask(
                     """
-                    ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} cron ${scg.start_at} $start
+                    ${scg.groupName} ${scg.jobType} ${scg.interval} 
+                    ${command.reduce { acc, s -> acc + s }} ${scg.workingDir} cron ${scg.startAt} $start
                 """.trimIndent()
                 )
             }
             "repeat" -> {
                 generateUIDForTask(
                     """
-                    ${scg.group_name} ${scg.job_type} ${scg.interval} 
-                    ${command.reduce { acc, s -> acc + s }} ${scg.working_dir} repeat ${scg.start_at} $start
+                    ${scg.groupName} ${scg.jobType} ${scg.interval} 
+                    ${command.reduce { acc, s -> acc + s }} ${scg.workingDir} repeat ${scg.startAt} $start
                 """.trimIndent()
                 )
             }
@@ -123,12 +123,12 @@ class ScriptExecutorService(
                 startTime = start,
                 endTime = Date.from(string2instant("2035-01-01 00:00:00")),
                 cluster = scg.cluster,
-                jobGroup = scg.group_name,
-                jobType = scg.job_type,
+                jobGroup = scg.groupName,
+                jobType = scg.jobType,
                 jobInterval = scg.interval,
                 jobCommand = command.reduce { acc, s -> "$acc $s" },
-                jobTrigger = scg.start_at,
-                workingDir = scg.working_dir,
+                jobTrigger = scg.startAt,
+                workingDir = scg.workingDir,
                 logHash = logHash,
                 taskHash = taskHash,
                 taskStatus = ScriptLogTaskStatus.RUNNING.desc,

@@ -15,28 +15,28 @@ class QuartzService(@Autowired val scheduler: Scheduler) {
 
     fun addOneTimeJob(scriptGroup: ScriptGroup) {
         val otj = buildJobDetail(scriptGroup, false)
-        scheduler.scheduleJob(otj, buildOneTimeJobTrigger(otj, scriptGroup.start_at))
+        scheduler.scheduleJob(otj, buildOneTimeJobTrigger(otj, scriptGroup.startAt))
     }
 
     fun addCronJob(scriptGroup: ScriptGroup) {
         val otj = buildJobDetail(scriptGroup, true)
-        scheduler.scheduleJob(otj, buildCronJobTrigger(otj, scriptGroup.start_at))
+        scheduler.scheduleJob(otj, buildCronJobTrigger(otj, scriptGroup.startAt))
     }
 
     private fun buildJobDetail(
         scriptGroup: ScriptGroup,
         isCron: Boolean
     ): JobDetail {
-        val groupName = scriptGroup.group_name
+        val groupName = scriptGroup.groupName
         val executeInterval = scriptGroup.interval
 
         val jobDataMap = JobDataMap()
-        jobDataMap["group_name"] = scriptGroup.group_name
-        jobDataMap["job_type"] = scriptGroup.job_type
+        jobDataMap["group_name"] = scriptGroup.groupName
+        jobDataMap["job_type"] = scriptGroup.jobType
         jobDataMap["interval"] = scriptGroup.interval
         jobDataMap["commands"] = scriptGroup.commands
-        jobDataMap["working_dir"] = scriptGroup.working_dir
-        jobDataMap["start_at"] = scriptGroup.start_at
+        jobDataMap["working_dir"] = scriptGroup.workingDir
+        jobDataMap["start_at"] = scriptGroup.startAt
         jobDataMap["configJSON"] = JSONMapper.writeValueAsString(scriptGroup)
 
         // The minimum interval is 500 millis, 0.5 seconds
