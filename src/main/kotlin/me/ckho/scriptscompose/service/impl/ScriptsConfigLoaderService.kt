@@ -5,16 +5,25 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import me.ckho.scriptscompose.domain.dataclasses.ScriptComposeConfig
 import me.ckho.scriptscompose.domain.dataclasses.ScriptGroupExpand
+import me.ckho.scriptscompose.repository.ScriptGroupsCacheRepository
 import me.ckho.scriptscompose.utils.ResponseFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.File
 
 @Service
-class ScriptsConfigLoaderService {
+class ScriptsConfigLoaderService(
+    @Autowired
+    val slCache: ScriptGroupsCacheRepository,
+    @Autowired
+    val lowLevelDBOps: LowLevelDBOps
+) {
     private lateinit var scg: ScriptComposeConfig
 
-    private val mapper = ObjectMapper(YAMLFactory()).apply { findAndRegisterModules() }.apply { propertyNamingStrategy =
-        PropertyNamingStrategies.SNAKE_CASE }
+    private val mapper = ObjectMapper(YAMLFactory()).apply { findAndRegisterModules() }.apply {
+        propertyNamingStrategy =
+            PropertyNamingStrategies.SNAKE_CASE
+    }
 
     /**
      * Load scripts_register.yaml from default location.
@@ -77,6 +86,15 @@ class ScriptsConfigLoaderService {
      * */
     fun loadConfigsFrom(path: String): ScriptComposeConfig {
         return mapper.readValue(File(path), ScriptComposeConfig::class.java)
+    }
+
+    /* Script Groups Cache */
+    fun reloadFileAndRefreshCache() {
+        lowLevelDBOps.recreateScriptGroupsCacheTable()
+        val newRecords = this.scg.generateForRefreshCache()
+        for (r in newRecords) {
+            slCache.save(r)
+        }
     }
 }
 

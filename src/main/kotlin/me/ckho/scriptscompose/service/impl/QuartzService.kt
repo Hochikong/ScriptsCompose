@@ -3,15 +3,25 @@ package me.ckho.scriptscompose.service.impl
 import me.ckho.scriptscompose.domain.dataclasses.ScriptGroup
 import me.ckho.scriptscompose.jobs.SimpleJob
 import me.ckho.scriptscompose.utils.JSONMapper
+import me.ckho.scriptscompose.utils.localDateTimeToString
 import org.quartz.*
+import org.quartz.impl.StdSchedulerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Service
-class QuartzService(@Autowired val scheduler: Scheduler) {
+class QuartzService(@Autowired var scheduler: Scheduler) {
     private val oneTimeDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+    fun restartScheduler() {
+        scheduler.clear()
+        scheduler.shutdown(true)
+        scheduler = StdSchedulerFactory().getScheduler(localDateTimeToString())
+        scheduler.start()
+        println("QuartzService restarted!!!")
+    }
 
     fun addOneTimeJob(scriptGroup: ScriptGroup) {
         val otj = buildJobDetail(scriptGroup, false)

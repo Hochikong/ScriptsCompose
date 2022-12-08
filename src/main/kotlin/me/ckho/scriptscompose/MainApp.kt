@@ -34,6 +34,7 @@ class MainApp(
         var sc: ScriptComposeConfig? = null
         try {
             sc = cfg.loadConfigs()
+            cfg.reloadFileAndRefreshCache()
         }catch (e: Exception){
             println("Error happened")
         }

@@ -3,6 +3,7 @@ package me.ckho.scriptscompose.utils
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.sql.Timestamp
@@ -49,7 +50,7 @@ fun string2date(datetime: String): Date {
     return Timestamp.valueOf(LocalDateTime.parse(datetime, formatter))
 }
 
-fun timestamp2date(timestamp: Long): Date{
+fun timestamp2date(timestamp: Long): Date {
     return Date(Timestamp(timestamp).time)
 }
 
@@ -57,4 +58,14 @@ fun convertToLocalDateTimeViaInstant(dateToConvert: Date): LocalDateTime {
     return dateToConvert.toInstant()
         .atZone(ZoneId.systemDefault())
         .toLocalDateTime()
+}
+
+fun localDateTimeToString(): String {
+    val currentDateTime = LocalDateTime.now()
+    return currentDateTime.format(DateTimeFormatter.ISO_DATE_TIME)
+}
+
+fun encodePassword(pwd: String) {
+    val encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
+    println(encoder.encode(pwd))
 }
