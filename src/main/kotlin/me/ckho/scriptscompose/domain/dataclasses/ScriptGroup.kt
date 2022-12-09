@@ -20,4 +20,10 @@ data class ScriptGroup(
         }
         return result
     }
+
+//    fun entitiesToScriptGroup(entities: List<ScriptGroupsCacheEntity>): ScriptGroup{
+////        val distinctGroups = entities.map { it.groupName }.toSet().toList()
+//        val distinctGroups: MutableMap<String, ScriptGroup> = mutableMapOf()
+//
+//    }
 }

@@ -38,6 +38,7 @@ class ScriptExecutorService(
     private var commands: MutableList<Array<String>> = mutableListOf()
     private var workingDirs: MutableList<String> = mutableListOf()
     private var stopThreadsFlag = false
+
     @Volatile
     private var taskRunningFlag = false
     private var stdoutAccumulate: String = "** STDOUT **\n"
@@ -50,6 +51,8 @@ class ScriptExecutorService(
     private var currentJobType = ""
     private var currentTaskHash = ""
     private var taskInterrupt = false
+
+    private var cursorForRepeatSequence = mutableListOf(0, (commands.size - 1))
 
     fun getOutput(): Array<String> {
         return arrayOf(stdoutAccumulate, stderrAccumulate)
@@ -94,6 +97,7 @@ class ScriptExecutorService(
                 """.trimIndent()
                 )
             }
+
             "cron" -> {
                 generateUIDForTask(
                     """
@@ -102,6 +106,7 @@ class ScriptExecutorService(
                 """.trimIndent()
                 )
             }
+
             "repeat" -> {
                 generateUIDForTask(
                     """
@@ -110,6 +115,7 @@ class ScriptExecutorService(
                 """.trimIndent()
                 )
             }
+
             else -> {
                 "INVALID JOB_TYPE"
             }
@@ -240,6 +246,7 @@ class ScriptExecutorService(
             while (!stopThreadsFlag) {
                 if (commands.size > 0) {
                     if (currentJobType != JobTypes.Repeat.t) {
+                        // run one by one then remove
                         val c = commands[0]
                         val wd = workingDirs[0]
                         runShellCommand(c, wd)
@@ -250,9 +257,23 @@ class ScriptExecutorService(
                             this.stopThreadsFlag = true
                         }
                     } else {
-                        val c = commands[0]
+                        // run command repeatedly
+                        var c: Array<String>
+                        try {
+                            c = commands[this.cursorForRepeatSequence[0]]
+                        }catch (error: IndexOutOfBoundsException){
+                            this.cursorForRepeatSequence[0] = 0
+                            c = commands[this.cursorForRepeatSequence[0]]
+                        }
                         val wd = workingDirs[0]
+                        println(c.reduce { acc, s -> "$acc $s" })
                         runShellCommand(c, wd)
+                        // use cursor to run command sequence repeatedly
+                        if (this.cursorForRepeatSequence[0] == this.cursorForRepeatSequence[1]) {
+                            this.cursorForRepeatSequence[0] = 0
+                        } else {
+                            this.cursorForRepeatSequence[0] += 1
+                        }
                     }
                 }
                 Thread.sleep(executeInterval)

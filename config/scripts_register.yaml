@@ -1,3 +1,8 @@
+# A GROUP is a minimal task sequence with all commands run one by one.
+# A CLUSTER is a logical group for the web interface or ScriptComposeClient to display tasks in a single tab.
+# If you want task sequences to run parallelly, use GROUP.
+# If you want to show tasks in the same tab, make sure all GROUPs use a same CLUSTER.
+
 script_groups:
   - group_name: SN2_1
     cluster: SN2
@@ -8,45 +13,51 @@ script_groups:
       - command_arg_seq:
           - python
           - -u
-          - nm_compose.py
-          - -c A.txt
+          - hello.py
+          - -n EIW
+      - command_arg_seq:
+          - python
+          - -u
+          - hello.py
+          - -n Helo
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
     start_at: '2021-11-21 15:45:00'
 
-#  - group_name: SN1_1
-#    cluster: SN1
-#    job_type: one
-#    # seconds
-#    interval: 10
-#    commands:
-#      - command_arg_seq:
-#          - python
-#          - -u
-#          - sycm_compose.py
-#          - -c 1.txt
-#      - command_arg_seq:
-#          - python
-#          - -u
-#          - sycm_compose.py
-#          - -c sb.txt
-#    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
+  - group_name: SN1_1
+    cluster: SN1
+    job_type: cron
+    # seconds
+    interval: 10
+    commands:
+      - command_arg_seq:
+          - python
+          - -u
+          - sycm_compose.py
+          - -c 1.txt
+      - command_arg_seq:
+          - python
+          - -u
+          - sycm_compose.py
+          - -c sb.txt
+    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
 #    start_at: '2021-11-21 15:45:00'
+    start_at: '10 * * ? * * *'
 
-#  - group_name: SN1_2
-#    cluster: SN1
-#    job_type: cron
-#    # seconds
-#    interval: 0
-#    commands:
+  - group_name: SN1_2
+    cluster: SN1
+    job_type: cron
+    # seconds
+    interval: 0
+    commands:
+      - command_arg_seq:
+          - python
+          - -u
+          - sycm_compose.py
+          - -c nmsl.txt
 #      - command_arg_seq:
-#          - python
-#          - -u
-#          - sycm_compose.py
-#          - -c nmsl.txt
-##      - command_arg_seq:
-##          - python38
-##          - jdsz_compose.py
-##          - -c yyy
-##          - -n nn
-#    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose\
-#    start_at: '0 * * ? * * *'
+#          - python38
+#          - jdsz_compose.py
+#          - -c yyy
+#          - -n nn
+    working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose\
+    start_at: '0 * * ? * * *'
