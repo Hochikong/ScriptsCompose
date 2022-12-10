@@ -249,6 +249,7 @@ class ScriptExecutorService(
                         // run one by one then remove
                         val c = commands[0]
                         val wd = workingDirs[0]
+//                        println(c.reduce { acc, s -> "$acc $s" })
                         runShellCommand(c, wd)
                         commands.removeAt(0)
                         workingDirs.removeAt(0)
@@ -266,7 +267,7 @@ class ScriptExecutorService(
                             c = commands[this.cursorForRepeatSequence[0]]
                         }
                         val wd = workingDirs[0]
-                        println(c.reduce { acc, s -> "$acc $s" })
+//                        println(c.reduce { acc, s -> "$acc $s" })
                         runShellCommand(c, wd)
                         // use cursor to run command sequence repeatedly
                         if (this.cursorForRepeatSequence[0] == this.cursorForRepeatSequence[1]) {

@@ -27,15 +27,18 @@ class MainApp(
         var sc: ScriptComposeConfig? = null
         try{
             when(args[0] ?: ""){
-
+                // from cache
                 "-C" -> {
                     try {
-                        val records = SGCR.findAll()
-
+                        val entityRecords = SGCR.findAll()
+                        entityRecords.forEach{ println(it.toString()) }
+                        sc = ScriptComposeConfig.allEntitiesSameGroupToScriptGroups(entityRecords)
+                        cfg.updateScriptComposeConfig(sc)
                     }catch (e: Exception){
                         println("Error happened: $e")
                     }
                 }
+                // latest
                 "-L" -> {
                     try {
                         sc = cfg.loadConfigs()

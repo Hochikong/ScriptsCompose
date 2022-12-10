@@ -33,6 +33,10 @@ class ScriptsConfigLoaderService(
         return scg
     }
 
+    fun updateScriptComposeConfig(scg: ScriptComposeConfig){
+        this.scg = scg
+    }
+
     fun getSCG(): ScriptComposeConfig? {
         return scg
     }

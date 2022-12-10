@@ -7,7 +7,7 @@ data class ScriptGroup(
     val groupName: String,
     val jobType: String,
     val interval: Int,
-    val commands: List<ScriptArgSequence>,
+    val commands: MutableList<ScriptArgSequence>,
     val workingDir: String,
     val startAt: String
 ){
@@ -21,9 +21,22 @@ data class ScriptGroup(
         return result
     }
 
-//    fun entitiesToScriptGroup(entities: List<ScriptGroupsCacheEntity>): ScriptGroup{
-////        val distinctGroups = entities.map { it.groupName }.toSet().toList()
-//        val distinctGroups: MutableMap<String, ScriptGroup> = mutableMapOf()
-//
-//    }
+    companion object{
+        fun allEntitiesInSameGroupToOneScriptGroup(entities: List<ScriptGroupsCacheEntity>): ScriptGroup{
+            if (entities.map { it.groupName }.toSet().toList().size != 1){
+                throw AssertionError("Entities' group name not unique")
+            }
+
+            // if group names are same, only commands have differences between entities
+            val baseObj = entities[0]
+            val resultGroup = ScriptGroup(baseObj.cluster,baseObj.groupName,baseObj.jobType,baseObj.executeInterval,
+                mutableListOf(),baseObj.workingDir, baseObj.startAt)
+
+            for (e in entities){
+                resultGroup.commands.add(ScriptArgSequence(e.command.split(" ").toList()))
+            }
+
+            return resultGroup
+        }
+    }
 }
