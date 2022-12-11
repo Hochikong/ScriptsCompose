@@ -10,27 +10,25 @@ class LowLevelDBOps(
     val jdbcTemplate: JdbcTemplate
 ) {
     fun recreateScriptGroupsCacheTable() {
-        jdbcTemplate.execute("DROP TABLE SCRIPT_GROUPS_CACHE IF EXISTS")
-        println("Drop Done")
-        jdbcTemplate.execute(
-            """
-                create table SCRIPT_GROUPS_CACHE (
-                    id bigint not null,
-                    cluster varchar(255),
-                    command varchar(255),
-                    execute_interval integer not null,
-                    group_name varchar(255),
-                    job_type varchar(255),
-                    start_at varchar(255),
-                    working_dir varchar(255),
-                    primary key (id)
-                )
-        """.trimIndent()
-        )
-        println("Create Done")
-//        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE;")
-//        jdbcTemplate.execute("TRUNCATE TABLE SCRIPT_GROUPS_CACHE;")
-//        jdbcTemplate.execute("ALTER SEQUENCE HIBERNATE_SEQUENCE RESTART WITH 1;")
-//        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE;")
+        jdbcTemplate.execute("TRUNCATE TABLE script_groups_cache;")
+        println("Truncate table script_groups_cache done.")
+//        jdbcTemplate.execute("DROP TABLE script_groups_cache")
+//        println("Drop Done")
+//        jdbcTemplate.execute(
+//            """
+//                create table script_groups_cache (
+//                    id bigint not null,
+//                    cluster varchar(255),
+//                    command varchar(255),
+//                    execute_interval integer not null,
+//                    group_name varchar(255),
+//                    job_type varchar(255),
+//                    start_at varchar(255),
+//                    working_dir varchar(255),
+//                    primary key (id)
+//                )
+//        """.trimIndent()
+//        )
+//        println("Create Done")
     }
 }

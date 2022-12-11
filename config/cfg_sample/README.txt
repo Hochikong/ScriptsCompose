@@ -1,0 +1,1 @@
+Remember to change file name to application.yaml before using different configuration file.
