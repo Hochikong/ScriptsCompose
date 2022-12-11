@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -73,20 +75,15 @@ class ScriptShellExecutorService(
         workingDirs.add(workingDir)
     }
 
-    fun prepareTempBashForLinux(location: String, cmdContent: String): String {
+    fun prepareTempBashForLinux(location: String, cmdContent: String): Pair<String, String> {
         val tempName = "script_compose_tmp_${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}.sh"
         val absTempName = if (location.endsWith("/")) {
             "$location$tempName"
         } else {
             "$location/$tempName"
         }
-        return try {
-            File(absTempName).writeText("!#/bin/sh\n$cmdContent")
-            "sh -xe $absTempName"
-        } catch (e: Exception) {
-            println(e)
-            "ERROR"
-        }
+        File(absTempName).writeText(cmdContent)
+        return Pair("sh -xe $absTempName", absTempName)
     }
 
     fun runShellCommand(command: Array<String>, workingDir: String) {
@@ -162,12 +159,17 @@ class ScriptShellExecutorService(
         )
 
         var tmpCommand = command
+        var fileNeedDelete = ""
 
         // For linux run_with_temp_bash_script
         val os = System.getProperty("os.name")
         if (os.lowercase() == "linux" && scg.runWithTempBashScript) {
-            tmpCommand = this.prepareTempBashForLinux(scg.tmpBashWorkingDir,
-                command.reduce { acc, s -> "$acc $s" }).split(" ").toTypedArray()
+            Files.createDirectories(Paths.get(scg.tmpBashWorkingDir))
+            val tmpPair = this.prepareTempBashForLinux(scg.tmpBashWorkingDir,
+                command.reduce { acc, s -> "$acc $s" })
+            tmpCommand = tmpPair.first.split(" ").toTypedArray()
+            fileNeedDelete = tmpPair.second
+//            println("CMD IS ${tmpCommand.reduce{acc, s -> "$acc $s" }}")
         }
 
         val jobID = r.id
@@ -218,9 +220,14 @@ class ScriptShellExecutorService(
             sLER.taskStatus = ScriptLogTaskStatus.FINISHED.desc
         }
         taskInterrupt = false
-        sLER.jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - \n$stderrAccumulate \n</STDERR>\n")
+        sLER.jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n<STDOUT>\n - \n$stderrAccumulate \n<STDERR>\n")
 
         SLR.save(sLER)
+
+        try {
+            File(fileNeedDelete).delete()
+        } catch (e: Exception) {
+        }
     }
 
     private fun getCurrentDatetime(): String {
