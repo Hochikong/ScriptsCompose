@@ -1,20 +1,23 @@
 package me.ckho.scriptscompose.controller
 
+import me.ckho.scriptscompose.domain.dataclasses.ScriptGroup
+import me.ckho.scriptscompose.domain.enums.JobTypes
 import me.ckho.scriptscompose.repository.ScriptLogsRepository
 import me.ckho.scriptscompose.service.impl.DataCache
+import me.ckho.scriptscompose.service.impl.QuartzService
 import me.ckho.scriptscompose.service.impl.ScriptLogsQueryService
 import me.ckho.scriptscompose.service.impl.ScriptsConfigLoaderService
+import me.ckho.scriptscompose.utils.generateUIDForTask
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class APIController(
+    @Autowired val qz: QuartzService,
     @Autowired
     var sle: ScriptLogsRepository,
     @Autowired
@@ -130,7 +133,7 @@ class APIController(
                 "code" to 403
             )
         } else {
-            if (type == "one"){
+            if (type == "one") {
                 val r1 = scls.getAllTasksByType(type)
                 val r2 = scls.getAllTasksByType("repeat")
                 mapOf(
@@ -138,7 +141,7 @@ class APIController(
                     "message" to "Query done.",
                     "code" to 200
                 )
-            }else{
+            } else {
                 val r = scls.getAllTasksByType(type)
                 mapOf(
                     "tasks" to r,
@@ -222,5 +225,32 @@ class APIController(
             "message" to "Query done.",
             "code" to 200
         )
+    }
+
+    @PostMapping("/cmd/onetime/new", produces = ["application/json"])
+    fun scheduleNewOneTimeJob(@RequestBody task: ScriptGroup): Map<String, Any> {
+        return if (task.jobType != JobTypes.OneTime.t) {
+            mapOf(
+                "message" to "JobType only support 'onetime'",
+                "code" to 400
+            )
+        } else {
+            qz.addOneTimeJob(task)
+            val taskHashes = task.commands.map {
+                generateUIDForTask(
+                    """
+                    ${task.groupName} ${task.jobType} ${task.interval} ${it.commandArgSeq.reduce { acc, s -> "$acc $s" }} ${task.workingDir}
+                    """.trimIndent()
+                )
+            }.toList()
+
+            mapOf(
+                "message" to "Add one-time job group ${task.groupName}",
+                "task_hashes" to taskHashes,
+                "code" to 200
+            )
+
+        }
+
     }
 }
