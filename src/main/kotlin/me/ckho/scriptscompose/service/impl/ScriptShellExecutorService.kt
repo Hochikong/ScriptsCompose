@@ -20,6 +20,7 @@ import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
@@ -27,13 +28,13 @@ import kotlin.concurrent.thread
 
 @Service
 @Scope(value = "prototype")
-class ScriptExecutorService(
+class ScriptShellExecutorService(
     @Autowired
     private val SLR: ScriptLogsRepository,
     @Autowired
     private val cache: DataCache
 ) {
-    private var logger: Logger = LoggerFactory.getLogger(ScriptExecutorService::class.java)
+    private var logger: Logger = LoggerFactory.getLogger(ScriptShellExecutorService::class.java)
     private val stdDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     private var commands: MutableList<Array<String>> = mutableListOf()
     private var workingDirs: MutableList<String> = mutableListOf()
@@ -70,6 +71,22 @@ class ScriptExecutorService(
         currentJobType = jobType
         commands.add(command.toTypedArray())
         workingDirs.add(workingDir)
+    }
+
+    fun prepareTempBashForLinux(location: String, cmdContent: String): String {
+        val tempName = "script_compose_tmp_${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}.sh"
+        val absTempName = if (location.endsWith("/")) {
+            "$location$tempName"
+        } else {
+            "$location/$tempName"
+        }
+        return try {
+            File(absTempName).writeText("!#/bin/sh\n$cmdContent")
+            "sh -xe $absTempName"
+        } catch (e: Exception) {
+            println(e)
+            "ERROR"
+        }
     }
 
     fun runShellCommand(command: Array<String>, workingDir: String) {
@@ -138,17 +155,28 @@ class ScriptExecutorService(
                 logHash = logHash,
                 taskHash = taskHash,
                 taskStatus = ScriptLogTaskStatus.RUNNING.desc,
-                jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - \n$stderrAccumulate \n</STDERR>\n")
+                jobLogs = ClobProxy.generateProxy("$stdoutAccumulate \n</STDOUT>\n - \n$stderrAccumulate \n</STDERR>\n"),
+                runWithTempBashScript = scg.runWithTempBashScript,
+                tmpBashWorkingDir = scg.tmpBashWorkingDir
             )
         )
+
+        var tmpCommand = command
+
+        // For linux run_with_temp_bash_script
+        val os = System.getProperty("os.name")
+        if (os.lowercase() == "linux" && scg.runWithTempBashScript) {
+            tmpCommand = this.prepareTempBashForLinux(scg.tmpBashWorkingDir,
+                command.reduce { acc, s -> "$acc $s" }).split(" ").toTypedArray()
+        }
 
         val jobID = r.id
 
         // Support writing a shell command in command_arg_seq in one row
-        proc = if (command.size == 1) {
-            rt.exec(command[0].split(" ").toTypedArray(), null, File(workingDir))
+        proc = if (tmpCommand.size == 1) {
+            rt.exec(tmpCommand[0].split(" ").toTypedArray(), null, File(workingDir))
         } else {
-            rt.exec(command, null, File(workingDir))
+            rt.exec(tmpCommand, null, File(workingDir))
         }
 
         proc.waitFor()
@@ -315,7 +343,7 @@ class ScriptExecutorService(
 }
 
 //fun main() {
-//    val s = ScriptExecutorService()
+//    val s = ScriptShellExecutorService()
 //    val input = Scanner(System.`in`)
 //    s.start()
 //    while (true) {

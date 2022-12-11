@@ -16,7 +16,9 @@ object ResponseFactory {
                 command = it.commandArgSeq.reduce { acc, s -> "$acc $s" },
                 working_dir = scg.workingDir,
                 start_at = scg.startAt,
-                task_hash = generateUIDForTask("${scg.groupName} ${scg.jobType} ${scg.interval} ${it.commandArgSeq.reduce { acc, s -> "$acc $s" }} ${scg.workingDir}")
+                task_hash = generateUIDForTask("${scg.groupName} ${scg.jobType} ${scg.interval} ${it.commandArgSeq.reduce { acc, s -> "$acc $s" }} ${scg.workingDir}"),
+                runWithTempBashScript = scg.runWithTempBashScript,
+                tmpBashWorkingDir = scg.tmpBashWorkingDir
             )
         }.toList()
     }
@@ -35,8 +37,10 @@ object ResponseFactory {
             logHash = sle.logHash,
             taskHash = sle.taskHash,
             taskStatus = sle.taskStatus,
-            jobLogs = "No Showing Here"
+            jobLogs = "No Showing Here",
 //            jobLogs = sle.jobLogs.getSubString(1, sle.jobLogs.length().toInt())
+            runWithTempBashScript = sle.runWithTempBashScript,
+            tmpBashWorkingDir = sle.tmpBashWorkingDir
         )
     }
 }

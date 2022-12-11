@@ -24,11 +24,13 @@ class ScriptLogsEntity(
     var taskStatus: String,
     @Lob
     var jobLogs: Clob,
+    val runWithTempBashScript: Boolean = false,
+    val tmpBashWorkingDir: String = "/tmp/script_composer",
     @Id
     @GeneratedValue
     var id: Long? = null
 ) {
     override fun toString(): String {
-        return "ScriptLogsEntity(startTime=$startTime, endTime=$endTime, cluster='$cluster', jobGroup='$jobGroup', jobType='$jobType', jobInterval=$jobInterval, jobCommand='$jobCommand', jobTrigger='$jobTrigger', workingDir='$workingDir', logHash='$logHash', taskHash='$taskHash', taskStatus='$taskStatus', jobLogs=$jobLogs, id=$id)"
+        return "ScriptLogsEntity(startTime=$startTime, endTime=$endTime, cluster='$cluster', jobGroup='$jobGroup', jobType='$jobType', jobInterval=$jobInterval, jobCommand='$jobCommand', jobTrigger='$jobTrigger', workingDir='$workingDir', logHash='$logHash', taskHash='$taskHash', taskStatus='$taskStatus', jobLogs=$jobLogs, runWithTempBashScript=$runWithTempBashScript, tmpBashWorkingDir='$tmpBashWorkingDir', id=$id)"
     }
 }

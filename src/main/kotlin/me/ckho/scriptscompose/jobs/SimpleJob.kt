@@ -1,7 +1,7 @@
 package me.ckho.scriptscompose.jobs
 
 import me.ckho.scriptscompose.domain.dataclasses.ScriptArgSequence
-import me.ckho.scriptscompose.service.impl.ScriptExecutorService
+import me.ckho.scriptscompose.service.impl.ScriptShellExecutorService
 import org.quartz.InterruptableJob
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class SimpleJob(
-    @Autowired val executor: ScriptExecutorService
+    @Autowired val executor: ScriptShellExecutorService
 ) : InterruptableJob{
     private var logger: Logger = LoggerFactory.getLogger(SimpleJob::class.java)
 

@@ -14,5 +14,7 @@ data class ScriptLog(
     var logHash: String,
     var taskHash: String,
     var taskStatus: String,
-    var jobLogs: String
+    var jobLogs: String,
+    val runWithTempBashScript: Boolean,
+    val tmpBashWorkingDir: String
 )

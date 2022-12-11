@@ -19,6 +19,9 @@ script_groups:
           - -n Helo
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
     start_at: '2021-11-21 15:45:00'
+    # If enable with temp script and the OS is linux, will create a temporary bash script to run your command
+    run_with_temp_bash_script: false
+    tmp_bash_working_dir: /tmp/script_composer
 
   - group_name: SN1_1
     cluster: SN1
@@ -29,13 +32,13 @@ script_groups:
       - command_arg_seq:
           - python
           - -u
-          - sycm_compose.py
-          - -c 1.txt
+          - hello.py
+          - -n SXP
       - command_arg_seq:
           - python
           - -u
-          - sycm_compose.py
-          - -c sb.txt
+          - hello.py
+          - -n WEE
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose
 #    start_at: '2021-11-21 15:45:00'
     start_at: '10 * * ? * * *'
@@ -49,12 +52,7 @@ script_groups:
       - command_arg_seq:
           - python
           - -u
-          - sycm_compose.py
-          - -c nmsl.txt
-#      - command_arg_seq:
-#          - python38
-#          - jdsz_compose.py
-#          - -c yyy
-#          - -n nn
+          - hello.py
+          - -n GNNN
     working_dir: C:\Users\ckhoi\IdeaProjects\ScriptsCompose\
     start_at: '0 * * ? * * *'
