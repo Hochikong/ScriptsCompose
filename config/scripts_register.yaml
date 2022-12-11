@@ -11,10 +11,7 @@ script_groups:
     interval: 30
     commands:
       - command_arg_seq:
-          - python
-          - -u
-          - hello.py
-          - -n EIW
+          - python -u hello.py -n EIW
       - command_arg_seq:
           - python
           - -u

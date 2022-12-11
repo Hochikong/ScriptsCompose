@@ -144,7 +144,13 @@ class ScriptExecutorService(
 
         val jobID = r.id
 
-        proc = rt.exec(command, null, File(workingDir))
+        // Support writing a shell command in command_arg_seq in one row
+        proc = if (command.size == 1) {
+            rt.exec(command[0].split(" ").toTypedArray(), null, File(workingDir))
+        } else {
+            rt.exec(command, null, File(workingDir))
+        }
+
         proc.waitFor()
 
         // std output and error output handle
@@ -262,7 +268,7 @@ class ScriptExecutorService(
                         var c: Array<String>
                         try {
                             c = commands[this.cursorForRepeatSequence[0]]
-                        }catch (error: IndexOutOfBoundsException){
+                        } catch (error: IndexOutOfBoundsException) {
                             this.cursorForRepeatSequence[0] = 0
                             c = commands[this.cursorForRepeatSequence[0]]
                         }
