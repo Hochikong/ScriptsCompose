@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import me.ckho.scriptscompose.domain.dataclasses.ScriptComposeConfig
+import me.ckho.scriptscompose.domain.dataclasses.ScriptGroup
 import me.ckho.scriptscompose.domain.dataclasses.ScriptGroupExpand
 import me.ckho.scriptscompose.repository.ScriptGroupsCacheRepository
 import me.ckho.scriptscompose.utils.ResponseFactory
@@ -33,12 +34,16 @@ class ScriptsConfigLoaderService(
         return scg
     }
 
-    fun updateScriptComposeConfig(scg: ScriptComposeConfig){
+    fun updateScriptComposeConfig(scg: ScriptComposeConfig) {
         this.scg = scg
     }
 
     fun getSCG(): ScriptComposeConfig? {
         return scg
+    }
+
+    fun addOneTimeScriptGroupToSCG(task: ScriptGroup) {
+        this.scg.scriptGroups.add(task)
     }
 
     fun getAllGroupsFromSCG(): List<String> {

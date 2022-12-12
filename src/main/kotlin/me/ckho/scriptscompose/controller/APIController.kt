@@ -235,6 +235,8 @@ class APIController(
                 "code" to 400
             )
         } else {
+            scls.addOneTimeScriptGroupToSCG(task)
+            println(task.commands.map { it.commandArgSeq.reduce { acc, s -> "$acc $s" } }.toString())
             qz.addOneTimeJob(task)
             val taskHashes = task.commands.map {
                 generateUIDForTask(
